@@ -4,7 +4,6 @@
             [twotris.model.app :as app]
             [twotris.model.game :as game] ))
 
-(def +on-tick-interval+ 1000)
 
 (defonce +rr-app-state+ (atom {}))
 
@@ -21,14 +20,32 @@
 (def keycode=>keyname (clojure.set/map-invert key=>code))
 
 (defn on-keydown [e]
-  (when (= :running (app/app-status @@+rr-app-state+))
-    (let [KEYNAME (-> e .-keyCode keycode=>keyname)
-          GAME    (app/keyname=>game KEYNAME)
-          ACTION  (app/keyname=>action KEYNAME) ]
-      ;(println "key pressed = " KEYNAME)
-      (when (and GAME ACTION)
-        (.preventDefault e)
-        (swap! @+rr-app-state+ update-in [GAME] ACTION) ))))
+  (let [KEYNAME (-> e .-keyCode keycode=>keyname)
+        GAME    (app/keyname=>game KEYNAME)
+        ACTION  (app/keyname=>action KEYNAME) ]
+    ;(println "key pressed = " KEYNAME)
+    (when (and GAME ACTION)
+      (.preventDefault e)
+      (swap! @+rr-app-state+ update-in [GAME] ACTION) )))
+
+(let [r-activated (atom false)]
+
+  (defn add-keydown! []
+    (.addEventListener js/document "keydown" on-keydown)
+    (reset! r-activated true) )
+
+  (defn remove-keydown! []
+    (.removeEventListener js/document "keydown" on-keydown)
+    (reset! r-activated false) )
+
+  (defn ensure-keydown-is-activated! []
+    (when-not @r-activated
+      (add-keydown!) ))
+
+  (defn ensure-keydown-is-not-activated! []
+    (when @r-activated
+      (remove-keydown!) ))
+  )
 
 
 (defn on-restart-button-click [e]
@@ -86,10 +103,7 @@
 )
 
 
-(defn init-handlers [R-APP]
-  (reset! +rr-app-state+ R-APP)
-  (.addEventListener js/document "keydown" on-keydown)
-)
+
 
 
 

@@ -39,3 +39,10 @@
                  (app/score @R-GAME1-SCORE @R-GAME2-SCORE) )))))
 
 
+(def r-app-keydown-activated??
+  (memoize
+   (fn [R-APP]
+     (let [R-APP-STATUS (r-app-status R-APP)]
+       (reaction ;(println "computing r-app-keydown-activated?? ...")
+                 (app/keydown-activated?? @R-APP-STATUS) )))))
+

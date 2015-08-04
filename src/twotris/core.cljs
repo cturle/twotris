@@ -12,12 +12,11 @@
 (defn on-js-reload []
   ;(println "js reloading ...")
   (reset! +r-app-state+ (app/new-state))
+  (reset! e/+rr-app-state+ +r-app-state+)
   (reagent/render-component [v/app-view +r-app-state+] (. js/document (getElementById "app")))
-  (e/init-handlers +r-app-state+)
   ;(println "... js reloaded !")
   :loaded
 )
-
 
 (defonce start
   (on-js-reload) )

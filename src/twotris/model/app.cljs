@@ -49,6 +49,8 @@
 (defn ensure-tick-is-activated? [STATUS]
   (running? STATUS) )
 
+(defn keydown-activated?? [STATUS]
+  (running? STATUS) )
 
 (declare score)
 

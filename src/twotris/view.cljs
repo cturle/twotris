@@ -31,6 +31,7 @@
          app-status-view
          game-info
          game-view
+         keydown-activation-watch
          restart-button-view
          start-button-view
          tick-activation-watch
@@ -53,6 +54,7 @@
           :game-over  [restart-button-view]
           nil )
         [tick-activation-watch R-APP]
+        [keydown-activation-watch R-APP]
         (when @R-APP-RUNNING?
           [tick-period-watch R-APP] )
        ]
@@ -176,8 +178,17 @@
       (if (app/ensure-tick-is-activated? @R-APP-STATUS)
         (js/setTimeout e/ensure-tick-is-activated! 0)
         (js/setTimeout e/ensure-tick-is-not-activated! 0) )
-      [:div.event {:name "tick-activation-update"}] )))
+      [:div.event {:name "tick-activation-watch"}] )))
 
+(defn keydown-activation-watch [R-APP]
+  (let [R-ACTIVATED?? (r/r-app-keydown-activated?? R-APP)]
+    ;(println "init keydown-activation-watch ...")
+    (fn []
+      ;(println "process keydown-activation-watch.")
+      (if @R-ACTIVATED??
+        (js/setTimeout e/ensure-keydown-is-activated! 0)
+        (js/setTimeout e/ensure-keydown-is-not-activated! 0) )
+      [:div.event {:name "keydown-activation-watch"}] )))
 
 (defn tick-period-watch [R-APP]
   (let [R-APP-TICK-PERIOD (u/r-get R-APP :TICK-PERIOD)]
@@ -185,7 +196,7 @@
     (fn []
       ;(println "process tick-period-ensure ...")
       (js/setTimeout e/ensure-tick-period! 0)
-      [:div.event {:name (str "ensure-tick-period!-" @R-APP-TICK-PERIOD)}] )))
+      [:div.event {:name (str "tick-period-watch!-" @R-APP-TICK-PERIOD)}] )))
 
 
 

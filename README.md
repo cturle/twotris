@@ -4,6 +4,8 @@ This project is a double Tetris game written with ClojureScript/Reagent largely 
 
 ## Overview
 
+Last update = version 1.0.1 (2015-08-04)
+
 FIXME: Write a paragraph about the library/project and highlight its goals.
 
 It is written as a single page application to demonstrate how to use Reagent from ClojureScript.
@@ -49,19 +51,22 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- fix on-keydown to be a view from model
+- ensure-keydown/tick-activation
 - azerty/qwerty mode
+- add 'speed' parameter
 - write 'overview' section
 - add dependency packages diagram
 - write 'differences' section
 - **blog it**
 - **tweet it**
-- add 'speed' parameter
 
+## Versions
+
+1.0.1 : fix on-keydown to be activated by a view from model.
 
 
 ## License
 
-Copyright © 2014 FIXME
+Copyright © 2015
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
