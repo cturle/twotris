@@ -1,18 +1,5 @@
 /* some style */
 
-body {
-  //background-color: rgb(100, 153, 255);
-}
-
-#bloc_page {
-  width:  1000px;
-  margin: auto;
-}
-
-header h1 {
-  text-align: center;
-}
-
 #app {
   margin:      50px auto 50px auto;
   font-family: 'Courier New';
