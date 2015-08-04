@@ -49,8 +49,6 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- change project name to 'twotris'
-- **deploy online : game + github**
 - fix on-keydown to be a view from model
 - azerty/qwerty mode
 - write 'overview' section
