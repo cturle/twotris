@@ -1,0 +1,61 @@
+/* some style */
+
+body {
+  //background-color: rgb(100, 153, 255);
+}
+
+#bloc_page {
+  width:  1000px;
+  margin: auto;
+}
+
+header h1 {
+  text-align: center;
+}
+
+#app {
+  margin:      50px auto 50px auto;
+  font-family: 'Courier New';
+  text-align:  center;
+}
+
+.app_infos, .app_red_infos {
+  font-size:   2em;
+  font-weight: bold;
+  margin:      10px 0px;
+}
+
+.app_red_infos {
+  color: red;
+}
+
+.games {
+}
+
+.game_infos {
+  display:        inline-block;
+  vertical-align: top;
+  text-align:     left;
+  width:          240px;
+  margin:         0px 10px;
+}
+
+.game {
+  display:        inline-block;
+  vertical-align: top;
+  margin:         0px 10px;
+}
+
+.board {
+  border: 1px solid black;
+}
+
+.app_button {
+    width:       200px;
+    padding:     10px 20px 10px 20px;
+    font-size:   20px;
+}
+
+.event {
+    display: none;
+}
