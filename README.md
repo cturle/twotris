@@ -1,14 +1,42 @@
 # Twotris
 
-This project is a double Tetris game written with ClojureScript/Reagent largely inspired from Timothypratley blog [post](http://timothypratley.blogspot.fr).
+This project is a double Tetris game written with ClojureScript/Reagent largely inspired from **Timothypratley** blog [post](http://timothypratley.blogspot.fr).
 
 ## Overview
 
-Last update = version 1.0.1 (2015-08-04)
+Before you go on, you halt a moment to play [Twotris](http://cturle.github.io/twotris.html) online to see what it is about.
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+Last game update = version 1.0.1 (2015-08-04)
 
 It is written as a single page application to demonstrate how to use Reagent from ClojureScript.
+
+## Full yet simple model-view-event Reagent framework
+
+[Reagent](https://github.com/reagent-project/reagent) is a great library to make Single Page Application with ClojureScript. It is simple and very clojurish but you may need some advices to direct your project. Here, i will present a simple but full framework i have elaborated to help me design my Reagent projects.
+
+![full yet simple model-view-event Reagent framework](doc/framework/framework.png)
+
+Out of the box, Reagent tells you (white boxes) how to :
+- Update views from model. You do this by using Reagent component and Reagent atoms. When atoms are updated, component auto-magically update your views. This is heart of Reagent / React.
+- Handle Javascript component events (button clicks, ...). Just put your function which updates your model in the html generated : {:on-click my-on-click-button-handler-function}.
+
+What is missing is how to manage :
+- Derived states. These are states which are not explicitly represented in the app r-atom. They are functionnaly derived from explicit states or other derived states. The Reagent 'reaction' macro is the key here but some official documentation is missing. Thanks to [re-frame](https://github.com/Day8/re-frame) to point to this facility.
+- Javascript void events. These are events which are not linked to DOM components. Ex: Timers, keydown ... Actually, people use some ad-hoc init functions to do the work. The goal here is to manage these events from the model, like views.
+
+### Reactions to manage derived states
+
+towrite
+
+### Watch components to manage JS void events
+
+towrite
+
+### Package dependencies to structure your project
+
+towrite
+
+![packages dependencies](doc/framework/packages.png)
 
 ## Setup
 
@@ -38,11 +66,11 @@ get live reloading, nor a REPL.
 
 ## Differences from original code
 
-Original code from timothypratley is hosted on [Github](https://github.com/timothypratley/tetris).
+Original code from **timothypratley** is hosted on [Github](https://github.com/timothypratley/tetris).
 
 Below, i list the differences from original code.
 
-- 2 Tetris boards at the same time. Just to add some flavor. 
+- 2 Tetris boards at the same time. Just to add some fun.
 - global variables use ++ syntax. Ex: '+on-tick-interval+'
 - local variables are always in uppercase. Ex: 'KEYNAME'
 
@@ -51,9 +79,10 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- ensure-keydown/tick-activation
+- write Framework section
+- implement framework
+- add 'speed' parameter. Easy/Moderate/Hard Mode.
 - azerty/qwerty mode
-- add 'speed' parameter
 - write 'overview' section
 - add dependency packages diagram
 - write 'differences' section
