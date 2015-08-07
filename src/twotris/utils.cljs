@@ -9,3 +9,7 @@
      (reaction ;(println "computing r-get " PP " ...")
                (get @R-ATOM PP) ))))
 
+
+(defn run-js-from-component! [F & ARGS]
+  (js/setTimeout #(apply F ARGS) 0) )
+

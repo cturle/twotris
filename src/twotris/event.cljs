@@ -94,6 +94,9 @@
     (when @r-current-timer-id
       (remove-tick!) ))
 
+  (defn ensure-tick-activation! [ACTIVATION]
+    (if ACTIVATION (ensure-tick-is-activated!) (ensure-tick-is-not-activated!)) )
+
   (defn ensure-tick-period! []
     ;(println "ensure-tick-period! ...")
     (when @r-current-timer-id

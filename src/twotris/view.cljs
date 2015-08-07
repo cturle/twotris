@@ -170,14 +170,14 @@
                       "START !"] )
 
 
+;;; -WATCH
+
 (defn tick-activation-watch [R-APP]
-  (let [R-APP-STATUS (r/r-app-status R-APP)]
+  (let [R-ACTIVATION (r/r-app-tick-activation R-APP)]
     ;(println "init tick-activation-watch ...")
     (fn []
-      ;(println "process tick-activation-watch. status = " @R-APP-STATUS)
-      (if (app/ensure-tick-is-activated? @R-APP-STATUS)
-        (js/setTimeout e/ensure-tick-is-activated! 0)
-        (js/setTimeout e/ensure-tick-is-not-activated! 0) )
+      ;(println "process tick-activation-watch. activation = " @R-ACTIVATION)
+      (u/run-js-from-component! e/ensure-tick-activation! @R-ACTIVATION)
       [:div.event {:name "tick-activation-watch"}] )))
 
 (defn keydown-activation-watch [R-APP]

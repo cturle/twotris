@@ -30,6 +30,13 @@
        (reaction ;(println "computing r-app-running ...")
                  (app/running? @R-APP-STATUS) )))))
 
+(def r-app-tick-activation
+  (memoize
+   (fn [R-APP]
+     (let [R-APP-RUNNING? (r-app-running? R-APP)]
+       (reaction ;(println "computing r-app-tick-activation ...")
+                 @R-APP-RUNNING? )))))
+
 (def r-app-score
   (memoize
    (fn [R-APP]
