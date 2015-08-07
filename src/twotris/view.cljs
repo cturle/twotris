@@ -181,13 +181,11 @@
       [:div.event {:name "tick-activation-watch"}] )))
 
 (defn keydown-activation-watch [R-APP]
-  (let [R-ACTIVATED?? (r/r-app-keydown-activated?? R-APP)]
+  (let [R-ACTIVATION (r/r-app-keydown-activation R-APP)]
     ;(println "init keydown-activation-watch ...")
     (fn []
-      ;(println "process keydown-activation-watch.")
-      (if @R-ACTIVATED??
-        (js/setTimeout e/ensure-keydown-is-activated! 0)
-        (js/setTimeout e/ensure-keydown-is-not-activated! 0) )
+      ;(println "process keydown-activation-watch. activation = " @R-ACTIVATION)
+      (u/run-js-from-component! e/ensure-keydown-activation! @R-ACTIVATION)
       [:div.event {:name "keydown-activation-watch"}] )))
 
 (defn tick-period-watch [R-APP]

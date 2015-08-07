@@ -30,12 +30,9 @@
        (reaction ;(println "computing r-app-running ...")
                  (app/running? @R-APP-STATUS) )))))
 
-(def r-app-tick-activation
-  (memoize
-   (fn [R-APP]
-     (let [R-APP-RUNNING? (r-app-running? R-APP)]
-       (reaction ;(println "computing r-app-tick-activation ...")
-                 @R-APP-RUNNING? )))))
+(def r-app-tick-activation r-app-running?)
+
+(def r-app-keydown-activation r-app-running?)
 
 (def r-app-score
   (memoize
@@ -46,10 +43,4 @@
                  (app/score @R-GAME1-SCORE @R-GAME2-SCORE) )))))
 
 
-(def r-app-keydown-activated??
-  (memoize
-   (fn [R-APP]
-     (let [R-APP-STATUS (r-app-status R-APP)]
-       (reaction ;(println "computing r-app-keydown-activated?? ...")
-                 (app/keydown-activated?? @R-APP-STATUS) )))))
 

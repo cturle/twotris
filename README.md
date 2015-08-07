@@ -6,7 +6,7 @@ This project is a double Tetris game written with ClojureScript/Reagent largely 
 
 Before you go on, you halt a moment to play [Twotris](http://cturle.github.io/twotris.html) online to see what it is about.
 
-Last game update = version 1.0.1 (2015-08-04)
+Last online game update = version 1.0.1 (2015-08-04)
 
 It is written as a single page application to demonstrate how to use Reagent from ClojureScript.
 
@@ -79,8 +79,8 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
+- tick-period using framework
 - write Framework section
-- implement framework
 - add 'speed' parameter. Easy/Moderate/Hard Mode.
 - azerty/qwerty mode
 - write 'overview' section
@@ -91,7 +91,9 @@ Todos list in order of priority :
 
 ## Versions
 
-1.0.1 : fix on-keydown to be activated by a view from model.
+1.0.3 : +keydown-activation using framework
+1.0.2 : +tick-activation using framework
+1.0.1 : +fix on-keydown to be activated by a view from model.
 
 
 ## License

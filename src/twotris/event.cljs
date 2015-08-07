@@ -45,7 +45,10 @@
   (defn ensure-keydown-is-not-activated! []
     (when @r-activated
       (remove-keydown!) ))
-  )
+
+  (defn ensure-keydown-activation! [ACTIVATION]
+    (if ACTIVATION (ensure-keydown-is-activated!) (ensure-keydown-is-not-activated!)) )
+)
 
 
 (defn on-restart-button-click [e]
