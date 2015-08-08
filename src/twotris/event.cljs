@@ -19,7 +19,7 @@
 
 (def keycode=>keyname (clojure.set/map-invert key=>code))
 
-(defn on-keydown [e]
+(defn on-keydown! [e]
   (let [KEYNAME (-> e .-keyCode keycode=>keyname)
         GAME    (app/keyname=>game KEYNAME)
         ACTION  (app/keyname=>action KEYNAME) ]
@@ -31,11 +31,11 @@
 (let [r-activated (atom false)]
 
   (defn add-keydown! []
-    (.addEventListener js/document "keydown" on-keydown)
+    (.addEventListener js/document "keydown" on-keydown!)
     (reset! r-activated true) )
 
   (defn remove-keydown! []
-    (.removeEventListener js/document "keydown" on-keydown)
+    (.removeEventListener js/document "keydown" on-keydown!)
     (reset! r-activated false) )
 
   (defn ensure-keydown-is-activated! []
@@ -46,22 +46,22 @@
     (when @r-activated
       (remove-keydown!) ))
 
-  (defn ensure-keydown-activation! [ACTIVATION]
+  (defn on-keydown-activation! [ACTIVATION]
     (if ACTIVATION (ensure-keydown-is-activated!) (ensure-keydown-is-not-activated!)) )
 )
 
 
-(defn on-restart-button-click [e]
+(defn on-restart-button-click! [e]
   ;(println "on-restart-button-click event ...")
   (swap! @+rr-app-state+ app/clear-games) )
 
 
-(defn on-start-button-click [e]
+(defn on-start-button-click! [e]
   ;(println "on-start-button-click event ...")
   (swap! @+rr-app-state+ app/activate) )
 
 
-(defn on-tick []
+(defn on-tick! []
   (when (not= :running (app/app-status @@+rr-app-state+)) (println "ERROR: on-tick while not running."))
   ;(println "on-tick event ..." (.getTime (js/Date.)))
   (swap! @+rr-app-state+ app/gravity) )
@@ -74,7 +74,7 @@
     ;(println "add-tick! ...")
     (when @r-current-timer-id (println "ERROR: add-tick, with timer-id = " @r-current-timer-id))
     (reset! r-current-period   (:TICK-PERIOD @@+rr-app-state+))
-    (reset! r-current-timer-id (js/setInterval on-tick @r-current-period)) )
+    (reset! r-current-timer-id (js/setInterval on-tick! @r-current-period)) )
 
   (defn remove-tick! []
     ;(println "remove-tick! ...")
@@ -97,10 +97,10 @@
     (when @r-current-timer-id
       (remove-tick!) ))
 
-  (defn ensure-tick-activation! [ACTIVATION]
+  (defn on-tick-activation! [ACTIVATION]
     (if ACTIVATION (ensure-tick-is-activated!) (ensure-tick-is-not-activated!)) )
 
-  (defn ensure-tick-period! []
+  (defn on-tick-period! []
     ;(println "ensure-tick-period! ...")
     (when @r-current-timer-id
       (when (not= @r-current-period (:TICK-PERIOD @@+rr-app-state+))

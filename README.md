@@ -79,18 +79,17 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- tick-period using framework
-- write Framework section
 - add 'speed' parameter. Easy/Moderate/Hard Mode.
 - azerty/qwerty mode
 - write 'overview' section
-- add dependency packages diagram
+- write Framework section
 - write 'differences' section
 - **blog it**
 - **tweet it**
 
 ## Versions
 
+1.0.4 : +tick-period using framework
 1.0.3 : +keydown-activation using framework
 1.0.2 : +tick-activation using framework
 1.0.1 : +fix on-keydown to be activated by a view from model.

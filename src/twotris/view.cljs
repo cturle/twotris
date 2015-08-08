@@ -29,7 +29,7 @@
 ;;; views
 (declare app-score-view
          app-status-view
-         game-info
+         game-info-view
          game-view
          keydown-activation-watch
          restart-button-view
@@ -40,14 +40,13 @@
 (defn app-view [R-APP]
   (let [R-GAME1         (u/r-get R-APP :GAME1)
         R-GAME2         (u/r-get R-APP :GAME2)
-        R-APP-STATUS    (r/r-app-status R-APP)
-        R-APP-RUNNING?  (r/r-app-running? R-APP) ]
+        R-APP-STATUS    (r/r-app-status R-APP) ]
     (fn []
       ;(println "rendering app-view")
       [:div
         [app-status-view R-APP]
         [:div.games
-          [game-info :GAME1] [game-view R-GAME1] [game-view R-GAME2] [game-info :GAME2] ]
+          [game-info-view :GAME1] [game-view R-GAME1] [game-view R-GAME2] [game-info-view :GAME2] ]
         [app-score-view R-APP]
         (case @R-APP-STATUS
           :ready      [start-button-view]
@@ -55,8 +54,6 @@
           nil )
         [tick-activation-watch R-APP]
         [keydown-activation-watch R-APP]
-        (when @R-APP-RUNNING?
-          [tick-period-watch R-APP] )
        ]
      )))
 
@@ -72,7 +69,7 @@
 (defn key-description [KEY]
   (str "'" KEY "' : " (-> KEY app/keyname=>action action=>description)) )
 
-(defn game-info [GAME-ID]
+(defn game-info-view [GAME-ID]
   [:div.game_infos
     [:p "Commands :"]
     (into [:ul]
@@ -160,13 +157,13 @@
 
 (defn restart-button-view []
   ;(println "rendering restart-button-view ...")
-  [:button.app_button {:on-click e/on-restart-button-click}
+  [:button.app_button {:on-click e/on-restart-button-click!}
                       "RESTART !"] )
 
 
 (defn start-button-view []
   ;(println "rendering start-button-view ...")
-  [:button.app_button {:on-click e/on-start-button-click}
+  [:button.app_button {:on-click e/on-start-button-click!}
                       "START !"] )
 
 
@@ -177,25 +174,26 @@
     ;(println "init tick-activation-watch ...")
     (fn []
       ;(println "process tick-activation-watch. activation = " @R-ACTIVATION)
-      (u/run-js-from-component! e/ensure-tick-activation! @R-ACTIVATION)
-      [:div.event {:name "tick-activation-watch"}] )))
+      (u/run-js-from-component! e/on-tick-activation! @R-ACTIVATION)
+      [:div.watch {:name "tick-activation-watch"}
+       (when @R-ACTIVATION
+         [tick-period-watch R-APP] )] )))
 
 (defn keydown-activation-watch [R-APP]
   (let [R-ACTIVATION (r/r-app-keydown-activation R-APP)]
     ;(println "init keydown-activation-watch ...")
     (fn []
       ;(println "process keydown-activation-watch. activation = " @R-ACTIVATION)
-      (u/run-js-from-component! e/ensure-keydown-activation! @R-ACTIVATION)
-      [:div.event {:name "keydown-activation-watch"}] )))
+      (u/run-js-from-component! e/on-keydown-activation! @R-ACTIVATION)
+      [:div.watch {:name "keydown-activation-watch"}] )))
 
 (defn tick-period-watch [R-APP]
   (let [R-APP-TICK-PERIOD (u/r-get R-APP :TICK-PERIOD)]
-    ;(println "init tick-period-ensure ...")
+    ;(println "init tick-period-watch ...")
     (fn []
-      ;(println "process tick-period-ensure ...")
-      (js/setTimeout e/ensure-tick-period! 0)
-      [:div.event {:name (str "tick-period-watch!-" @R-APP-TICK-PERIOD)}] )))
-
+      ;(println "process tick-period-watch. period = " @R-APP-TICK-PERIOD)
+      (u/run-js-from-component! e/on-tick-period! @R-APP-TICK-PERIOD)
+      [:div.watch {:name (str "tick-period-watch!")}] )))
 
 
 
