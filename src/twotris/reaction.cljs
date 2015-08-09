@@ -42,5 +42,10 @@
        (reaction ;(println "computing r-app-score ...")
                  (app/score @R-GAME1-SCORE @R-GAME2-SCORE) )))))
 
-
+(def r-app-tick-period
+  (memoize
+   (fn [R-APP]
+     (let [R-DIFFICULTY (u/r-get R-APP :DIFFICULTY)]
+       (reaction ;(println "computing r-app-tick-period ...")
+                 (app/tick-period @R-DIFFICULTY) )))))
 

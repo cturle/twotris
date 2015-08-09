@@ -29,10 +29,11 @@
 ;;; views
 (declare app-score-view
          app-status-view
-         game-info-view
          game-view
+         left-info-view
          keydown-activation-watch
          restart-button-view
+         right-info-view
          start-button-view
          tick-activation-watch
          tick-period-watch )
@@ -46,7 +47,7 @@
       [:div
         [app-status-view R-APP]
         [:div.games
-          [game-info-view :GAME1] [game-view R-GAME1] [game-view R-GAME2] [game-info-view :GAME2] ]
+          [left-info-view R-APP] [game-view R-GAME1] [game-view R-GAME2] [right-info-view R-APP] ]
         [app-score-view R-APP]
         (case @R-APP-STATUS
           :ready      [start-button-view]
@@ -69,54 +70,74 @@
 (defn key-description [KEY]
   (str "'" KEY "' : " (-> KEY app/keyname=>action action=>description)) )
 
-(defn game-info-view [GAME-ID]
-  [:div.game_infos
+
+(declare command-info-view
+         parameters-view )
+
+(defn left-info-view [R-APP]
+  [:div.infos
+   [command-info-view :GAME1]
+   [parameters-view R-APP] ])
+
+(defn command-info-view [GAME-ID]
+  [:div.command_infos
     [:p "Commands :"]
     (into [:ul]
           (for [[KEY V] app/keyname=>game
                 :when (= GAME-ID V) ]
             [:li (key-description KEY)] ))])
 
+(defn parameters-view [R-APP]
+  (let [R-DIFFICULTY (u/r-get R-APP :DIFFICULTY)]
+    ;(println "init parameters-view ...")
+    (fn []
+      ;(println "process parameters-view ...")
+      [:div.parameters
+        [:text "Difficulty = "] [:select {:on-change #(swap! R-APP assoc :DIFFICULTY (keyword (-> % .-target .-value)))
+                                          :value @R-DIFFICULTY }
+                                  [:option {:value :hard  }  "Hard"]
+                                  [:option {:value :normal}  "Normal"]
+                                  [:option {:value :easy  }  "Easy"] ]] )))
+
 
 (declare game-board-graphic-view
          game-score-view )
 
 (defn game-view [R-GAME]
-  (let [GAME-REF (:ref @R-GAME)]
-    ;(println "init game-view, ref=" GAME-REF)
-    (fn []
-      ;(println "rendering game-view ...")
-      [:div.game
-       [game-board-graphic-view R-GAME]
-       ;[game-score-view R-GAME]
-       ])))
+  ;(println "init & rendering game-view, ref=" (:ref @R-GAME))
+  [:div.game
+    [game-board-graphic-view R-GAME]
+    ;[game-score-view R-GAME]
+  ])
 
 
 (declare block)
 
 (defn game-board-graphic-view [R-GAME]
-  (let [GAME-REF (:ref @R-GAME)]
-    (fn []
-      (let [{:keys [PIECE COLOR X Y BLOCK-PILE DONE]} @R-GAME
-            PIECE-WIDTH   (count PIECE)
-            PIECE-HEIGHT  (count (first PIECE))
-            BLOCK-WIDTH   (count BLOCK-PILE)
-            BLOCK-HEIGHT  (count (first BLOCK-PILE)) ]
-          ;(println "computing game-board-graphic-view, ref=" GAME-REF)
-          [:svg.board {:style    {:width 200, :height 400}
-                       :view-box (string/join " " [0 0 10 20])}
-           (when-not DONE
-             (into [:g {:name "current piece"}]
-                                (for [I (range PIECE-WIDTH)
-                                      J (range PIECE-HEIGHT)
-                                      :when (pos? (get-in PIECE [I J])) ]
-                                  [block (+ X I) (+ Y J) COLOR])))
-           (into [:g {:name "block pile"}]
-                 (for [I (range BLOCK-WIDTH)
-                       J (range BLOCK-HEIGHT)
-                       :let [BLOCK-COLOR (get-in BLOCK-PILE [I J])]
-                       :when (not (neg? BLOCK-COLOR))]
-                   [block I J BLOCK-COLOR] ))]))))
+  (let [{:keys [PIECE COLOR X Y BLOCK-PILE DONE]} @R-GAME
+        PIECE-WIDTH   (count PIECE)
+        PIECE-HEIGHT  (count (first PIECE))
+        BLOCK-WIDTH   (count BLOCK-PILE)
+        BLOCK-HEIGHT  (count (first BLOCK-PILE)) ]
+    ;(println "computing game-board-graphic-view, ref=" (:ref @R-GAME))
+    [:svg.board {:style    {:width 200, :height 400}
+                 :view-box (string/join " " [0 0 10 20])}
+      (when-not DONE
+        (into [:g {:name "current piece"}]
+              (for [I (range PIECE-WIDTH)
+                    J (range PIECE-HEIGHT)
+                    :when (pos? (get-in PIECE [I J])) ]
+                [block (+ X I) (+ Y J) COLOR] )))
+      (into [:g {:name "block pile"}]
+            (for [I (range BLOCK-WIDTH)
+                  J (range BLOCK-HEIGHT)
+                  :let [BLOCK-COLOR (get-in BLOCK-PILE [I J])]
+                  :when (not (neg? BLOCK-COLOR))]
+              [block I J BLOCK-COLOR] ))]))
+
+(defn right-info-view [R-APP]
+  [:div.infos
+   [command-info-view :GAME2] ])
 
 
 (declare color-view)
@@ -188,7 +209,7 @@
       [:div.watch {:name "keydown-activation-watch"}] )))
 
 (defn tick-period-watch [R-APP]
-  (let [R-APP-TICK-PERIOD (u/r-get R-APP :TICK-PERIOD)]
+  (let [R-APP-TICK-PERIOD (r/r-app-tick-period R-APP)]
     ;(println "init tick-period-watch ...")
     (fn []
       ;(println "process tick-period-watch. period = " @R-APP-TICK-PERIOD)

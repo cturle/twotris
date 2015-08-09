@@ -73,7 +73,7 @@
   (defn add-tick! []
     ;(println "add-tick! ...")
     (when @r-current-timer-id (println "ERROR: add-tick, with timer-id = " @r-current-timer-id))
-    (reset! r-current-period   (:TICK-PERIOD @@+rr-app-state+))
+    (reset! r-current-period   (app/app-tick-period @@+rr-app-state+))
     (reset! r-current-timer-id (js/setInterval on-tick! @r-current-period)) )
 
   (defn remove-tick! []
@@ -86,7 +86,7 @@
 
   (defn ensure-tick-is-activated! []
     ;(println "ensure-tick-is-activated! ...")
-    (cond (and @r-current-timer-id (not= @r-current-period (:TICK-PERIOD @@+rr-app-state+)))
+    (cond (and @r-current-timer-id (not= @r-current-period (app/app-tick-period @@+rr-app-state+)))
           (do (remove-tick!)
               (add-tick!) )
           (not @r-current-timer-id)
@@ -103,12 +103,10 @@
   (defn on-tick-period! []
     ;(println "ensure-tick-period! ...")
     (when @r-current-timer-id
-      (when (not= @r-current-period (:TICK-PERIOD @@+rr-app-state+))
+      (when (not= @r-current-period (app/app-tick-period @@+rr-app-state+))
         (remove-tick!)
         (add-tick!) )))
 )
-
-
 
 
 

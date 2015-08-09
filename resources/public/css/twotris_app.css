@@ -19,22 +19,27 @@
 .games {
 }
 
-.game_infos {
+.game, .infos {
   display:        inline-block;
   vertical-align: top;
-  text-align:     left;
-  width:          240px;
   margin:         0px 10px;
 }
 
-.game {
-  display:        inline-block;
-  vertical-align: top;
-  margin:         0px 10px;
+.infos {
+  text-align:     left;
+  width:          240px;
+  //border: solid 1px red;
+}
+
+.command_infos {
+}
+
+.parameters {
+  //border: solid 1px blue;
 }
 
 .board {
-  border: 1px solid black;
+  border: solid 1px black;
 }
 
 .app_button {

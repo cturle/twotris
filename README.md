@@ -79,8 +79,8 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- add 'speed' parameter. Easy/Moderate/Hard Mode.
 - azerty/qwerty mode
+- 'Return' shortcut for Start/Restart
 - write 'overview' section
 - write Framework section
 - write 'differences' section
@@ -89,6 +89,7 @@ Todos list in order of priority :
 
 ## Versions
 
+1.1.0 : +Easy/Moderate/Hard Mode
 1.0.4 : +tick-period using framework
 1.0.3 : +keydown-activation using framework
 1.0.2 : +tick-activation using framework

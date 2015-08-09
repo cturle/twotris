@@ -2,10 +2,12 @@
   (:require [twotris.model.game :as game]) )
 
 
-(def +default-on-tick-interval+ 300)
+(def +difficulty=>tick-period+ {:hard 200, :normal 400, :easy 800})
+(def +default-difficulty+ :normal)
+
 
 (defn new-state [] {:ACTIVE false
-                    :TICK-PERIOD  +default-on-tick-interval+
+                    :DIFFICULTY   +default-difficulty+
                     :GAME1 (assoc (game/new-game) :ref [:GAME1])
                     :GAME2 (assoc (game/new-game) :ref [:GAME2]) })
 
@@ -80,3 +82,15 @@
    "LEFT"  :GAME2
    "DOWN"  :GAME2
    "RIGHT" :GAME2} )
+
+(defn tick-period [DIFFICULTY]
+  (DIFFICULTY +difficulty=>tick-period+) )
+
+(defn app-tick-period [APP]
+  (tick-period (:DIFFICULTY APP)) )
+
+
+
+
+
+
