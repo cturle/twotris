@@ -1,16 +1,42 @@
 (ns twotris.model.app
-  (:require [twotris.model.game :as game]) )
+  (:require [clojure.set]
+            [twotris.model.game :as game]) )
 
+;;; === Parameters ===
 
-(def +difficulty=>tick-period+ {:hard 200, :normal 400, :easy 800})
+(def +<Keyboard_action-key>-map+
+  {:azerty-kb
+            {[:GAME1 :rotate-action] :z-key
+             [:GAME1 :left-action]   :q-key
+             [:GAME1 :drop-action]   :s-key
+             [:GAME1 :right-action]  :d-key
+             [:GAME2 :rotate-action] :up-key
+             [:GAME2 :left-action]   :left-key
+             [:GAME2 :drop-action]   :down-key
+             [:GAME2 :right-action]  :right-key }
+   :qwerty-kb
+            {[:GAME1 :rotate-action] :w-key
+             [:GAME1 :left-action]   :a-key
+             [:GAME1 :drop-action]   :s-key
+             [:GAME1 :right-action]  :d-key
+             [:GAME2 :rotate-action] :up-key
+             [:GAME2 :left-action]   :left-key
+             [:GAME2 :drop-action]   :down-key
+             [:GAME2 :right-action]  :right-key }} )
+
 (def +default-difficulty+ :normal)
 
+(def +default-keyboard+ :azerty-kb)
 
-(defn new-state [] {:ACTIVE false
-                    :DIFFICULTY   +default-difficulty+
+(def +difficulty=>tick-period+ {:hard 200, :normal 400, :easy 800})
+
+;;; === ===
+
+(defn new-state [] {:ACTIVE      false
+                    :DIFFICULTY  +default-difficulty+
+                    :KEYBOARD    +default-keyboard+
                     :GAME1 (assoc (game/new-game) :ref [:GAME1])
                     :GAME2 (assoc (game/new-game) :ref [:GAME2]) })
-
 
 (let [gravity-if-game-not-done #(if (not (:DONE %)) (game/gravity %) %)]
   (defn gravity [APP]
@@ -63,31 +89,27 @@
 (defn score [GAME1-SCORE GAME2-SCORE]
   (+ GAME1-SCORE GAME2-SCORE) )
 
-(def keyname=>action
-  {"Z"     game/rotate
-   "Q"     game/move-left
-   "S"     game/drop-to-ground
-   "D"     game/move-right
-   "UP"    game/rotate
-   "LEFT"  game/move-left
-   "DOWN"  game/drop-to-ground
-   "RIGHT" game/move-right })
-
-(def keyname=>game
-  {"Z"     :GAME1
-   "Q"     :GAME1
-   "S"     :GAME1
-   "D"     :GAME1
-   "UP"    :GAME2
-   "LEFT"  :GAME2
-   "DOWN"  :GAME2
-   "RIGHT" :GAME2} )
-
 (defn tick-period [DIFFICULTY]
   (DIFFICULTY +difficulty=>tick-period+) )
 
 (defn app-tick-period [APP]
   (tick-period (:DIFFICULTY APP)) )
+
+(def <Action_GameUpdater>
+  {:rotate-action  game/rotate
+   :left-action    game/move-left
+   :drop-action    game/drop-to-ground
+   :right-action   game/move-right })
+
+(def <Keyboard_action-key> +<Keyboard_action-key>-map+)
+
+(def <action-key_<Key_Game*Action>> clojure.set/map-invert)
+
+(let [KEYBOARD=>KEYBOARD {:azerty-kb :qwerty-kb, :qwerty-kb :azerty-kb}]
+  (defn other-keyboard [KEYBOARD]
+    (get KEYBOARD=>KEYBOARD KEYBOARD) ))
+
+
 
 
 

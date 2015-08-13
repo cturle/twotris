@@ -10,28 +10,60 @@
 
 
 
-;;; parameters
+;;; === Parameters===
+(def +action-name-map+
+  {:rotate-action "rotate"
+   :left-action   "move left"
+   :drop-action   "drop down"
+   :right-action  "move right" })
+
 (def +block-size+ 50)
 
-(def +status+ {:ready     "Ready !"
-               :running   "Playing ..."
-               :game-over "Game Over"} )
+(def +colors+
+  ["#ff0000", "#00ff00", "#0000ff", "#AB4642", "#DC9656", "#F7CA88", "#A1B56C", "#86C1B9", "#7CAFC2", "#BA8BAF", "#A16946"])
 
-(def +colors+ ["#ff0000", "#00ff00", "#0000ff", "#AB4642", "#DC9656", "#F7CA88", "#A1B56C", "#86C1B9", "#7CAFC2", "#BA8BAF", "#A16946"])
+(def +command-action-vec+
+  [:rotate-action, :left-action, :drop-action, :right-action])
 
-(def action=>description
-  {game/rotate          "rotate"
-   game/move-left       "move left"
-   game/drop-to-ground  "drop down"
-   game/move-right      "move right" })
+(def +keyboard=>bt-label-map+
+  {:azerty-kb "GO QWERTY !", :qwerty-kb "GO AZERTY !"} )
+
+(def +key-name-map+
+  {:a-key     "A"
+   :d-key     "D"
+   :q-key     "Q"
+   :s-key     "S"
+   :w-key     "W"
+   :z-key     "Z"
+   :up-key    "UP"
+   :left-key  "LEFT"
+   :down-key  "DOWN"
+   :right-key "RIGHT" })
+
+(def +status+
+  {:ready     "Ready !"
+   :running   "Playing ..."
+   :game-over "Game Over"} )
 
 
-;;; views
+
+;;; === Accessors ===
+
+(defn action-name [ACTION]
+  (get +action-name-map+ ACTION) )
+
+(defn key-name [KEY]
+  (get +key-name-map+ KEY) )
+
+
+
+;;; === -VIEW ===
 (declare app-score-view
          app-status-view
          game-view
          left-info-view
          keydown-activation-watch
+         keydown-configuration-watch
          restart-button-view
          right-info-view
          start-button-view
@@ -39,6 +71,7 @@
          tick-period-watch )
 
 (defn app-view [R-APP]
+  ;(println "init app-view. R-APP=" R-APP)
   (let [R-GAME1         (u/r-get R-APP :GAME1)
         R-GAME2         (u/r-get R-APP :GAME2)
         R-APP-STATUS    (r/r-app-status R-APP) ]
@@ -67,37 +100,56 @@
       [(if (= :game-over @R-APP-STATUS) :div.app_red_infos :div.app_infos) (get +status+ @R-APP-STATUS "status?")] )))
 
 
-(defn key-description [KEY]
-  (str "'" KEY "' : " (-> KEY app/keyname=>action action=>description)) )
-
-
 (declare command-info-view
          parameters-view )
 
 (defn left-info-view [R-APP]
   [:div.infos
-   [command-info-view :GAME1]
+   [command-info-view R-APP :GAME1]
    [parameters-view R-APP] ])
 
-(defn command-info-view [GAME-ID]
-  [:div.command_infos
-    [:p "Commands :"]
-    (into [:ul]
-          (for [[KEY V] app/keyname=>game
-                :when (= GAME-ID V) ]
-            [:li (key-description KEY)] ))])
+
+(defn command-info-view [R-APP GAME-ID]
+  ;(println "init command-info-view. GAME-ID=" GAME-ID)
+  (let [ACTION-vec  +command-action-vec+
+        R-KEY-vec   (mapv #(r/<r-app*Game*Action_r-Key> R-APP GAME-ID %) ACTION-vec)
+        LI-VIEW     (fn [ACTION R-KEY] [:li (str "'" (key-name @R-KEY) "' : " (action-name ACTION))]) ]
+    (fn []
+      ;(println "process command-info-view. GAME-ID=" GAME-ID)
+      [:div.command_infos
+        [:p "Commands :"]
+        (into [:ul] (map LI-VIEW ACTION-vec R-KEY-vec) )])))
+
+
+(declare difficulty-view
+         keyboard-view )
 
 (defn parameters-view [R-APP]
+  ;(println "init parameters-view ...")
+  [:div.parameters
+   [difficulty-view R-APP]
+   [keyboard-view R-APP] ])
+
+(defn difficulty-view [R-APP]
+  ;(println "init difficulty-view ...")
   (let [R-DIFFICULTY (u/r-get R-APP :DIFFICULTY)]
-    ;(println "init parameters-view ...")
     (fn []
-      ;(println "process parameters-view ...")
-      [:div.parameters
+      ;(println "process difficulty-view ...")
+      [:div.difficulty
         [:text "Difficulty = "] [:select {:on-change #(swap! R-APP assoc :DIFFICULTY (keyword (-> % .-target .-value)))
                                           :value @R-DIFFICULTY }
                                   [:option {:value :hard  }  "Hard"]
                                   [:option {:value :normal}  "Normal"]
                                   [:option {:value :easy  }  "Easy"] ]] )))
+
+(defn keyboard-view [R-APP]
+  ;(println "init keyboard-view ...")
+  (let [R-KEYBOARD  (u/r-get R-APP :KEYBOARD)]
+    (fn []
+      ;(println "process keyboard-view ...")
+      [:div.keyboard
+       [:button.param_button {:on-click #(swap! R-APP update :KEYBOARD app/other-keyboard)}
+                           (get +keyboard=>bt-label-map+ @R-KEYBOARD) ]])))
 
 
 (declare game-board-graphic-view
@@ -137,7 +189,7 @@
 
 (defn right-info-view [R-APP]
   [:div.infos
-   [command-info-view :GAME2] ])
+   [command-info-view R-APP :GAME2] ])
 
 
 (declare color-view)
@@ -188,33 +240,39 @@
                       "START !"] )
 
 
-;;; -WATCH
+
+;;; === -WATCH ===
 
 (defn tick-activation-watch [R-APP]
+  ;(println "init/process tick-activation-watch ...")
   (let [R-ACTIVATION (r/r-app-tick-activation R-APP)]
-    ;(println "init tick-activation-watch ...")
-    (fn []
-      ;(println "process tick-activation-watch. activation = " @R-ACTIVATION)
-      (u/run-js-from-component! e/on-tick-activation! @R-ACTIVATION)
-      [:div.watch {:name "tick-activation-watch"}
-       (when @R-ACTIVATION
-         [tick-period-watch R-APP] )] )))
+    (u/run-js-from-component! e/on-tick-activation! @R-ACTIVATION)
+    [:div.watch {:name "tick-activation-watch"}
+      (when @R-ACTIVATION
+        [tick-period-watch R-APP] )] ))
 
-(defn keydown-activation-watch [R-APP]
-  (let [R-ACTIVATION (r/r-app-keydown-activation R-APP)]
-    ;(println "init keydown-activation-watch ...")
-    (fn []
-      ;(println "process keydown-activation-watch. activation = " @R-ACTIVATION)
-      (u/run-js-from-component! e/on-keydown-activation! @R-ACTIVATION)
-      [:div.watch {:name "keydown-activation-watch"}] )))
 
 (defn tick-period-watch [R-APP]
-  (let [R-APP-TICK-PERIOD (r/r-app-tick-period R-APP)]
-    ;(println "init tick-period-watch ...")
-    (fn []
-      ;(println "process tick-period-watch. period = " @R-APP-TICK-PERIOD)
-      (u/run-js-from-component! e/on-tick-period! @R-APP-TICK-PERIOD)
-      [:div.watch {:name (str "tick-period-watch!")}] )))
+  ;(println "init/process tick-period-watch ...")
+  (u/run-js-from-component! e/on-tick-period! @(r/r-app-tick-period R-APP))
+  [:div.watch {:name (str "tick-period-watch!")}] )
+
+
+(defn keydown-activation-watch [R-APP]
+  ;(println "init/process keydown-activation-watch ...")
+  (let [R-ACTIVATION (r/r-app-keydown-activation R-APP)]
+    (u/run-js-from-component! e/on-keydown-activation! @R-ACTIVATION)
+    [:div.watch {:name "keydown-activation-watch"}
+       (when @R-ACTIVATION
+         [keydown-configuration-watch R-APP] )] ))
+
+
+(defn keydown-configuration-watch [R-APP]
+  ;(println "init/process keydown-configuration-watch ...")
+  (deref (r/<r-app_r-<Key_Game*Action>> R-APP))
+  [:div.watch {:name "keydown-configuration-watch"}] )
+
+
 
 
 

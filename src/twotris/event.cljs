@@ -1,32 +1,35 @@
 (ns twotris.event
   (:require [clojure.set]
             [reagent.core  :as reagent]
-            [twotris.model.app :as app]
-            [twotris.model.game :as game] ))
+            [twotris.model.app  :as app]
+            [twotris.model.game :as game]
+            [twotris.reaction   :as r] ))
 
 
 (defonce +rr-app-state+ (atom {}))
 
-(def key=>code
-  {"Z"     90
-   "Q"     81
-   "S"     83
-   "D"     68
-   "UP"    38
-   "LEFT"  37
-   "DOWN"  40
-   "RIGHT" 39} )
+(def <Key_Code>
+  {:a-key  65
+   :d-key  68
+   :q-key  81
+   :s-key  83
+   :w-key  87
+   :z-key  90
+   :up-key 38
+   :left-key  37
+   :down-key  40
+   :right-key 39} )
 
-(def keycode=>keyname (clojure.set/map-invert key=>code))
+(def <Code_Key> (clojure.set/map-invert <Key_Code>))
 
 (defn on-keydown! [e]
-  (let [KEYNAME (-> e .-keyCode keycode=>keyname)
-        GAME    (app/keyname=>game KEYNAME)
-        ACTION  (app/keyname=>action KEYNAME) ]
-    ;(println "key pressed = " KEYNAME)
+  (let [KEY            (-> e .-keyCode <Code_Key>)
+        [GAME ACTION]  ((deref (r/<r-app_r-<Key_Game*Action>> @+rr-app-state+)) KEY) ]
+    ;(println "key pressed = " KEY)
     (when (and GAME ACTION)
+      ;(println "key handled = " KEY ", GAME=" GAME ", ACTION=" ACTION)
       (.preventDefault e)
-      (swap! @+rr-app-state+ update-in [GAME] ACTION) )))
+      (swap! @+rr-app-state+ update GAME (app/<Action_GameUpdater> ACTION)) )))
 
 (let [r-activated (atom false)]
 

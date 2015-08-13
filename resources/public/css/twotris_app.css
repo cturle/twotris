@@ -6,6 +6,12 @@
   text-align:  center;
 }
 
+.app_button {
+    width:       200px;
+    padding:     10px 20px 10px 20px;
+    font-size:   20px;
+}
+
 .app_infos, .app_red_infos {
   font-size:   2em;
   font-weight: bold;
@@ -14,6 +20,13 @@
 
 .app_red_infos {
   color: red;
+}
+
+.board {
+  border: solid 1px black;
+}
+
+.command_infos {
 }
 
 .games {
@@ -31,21 +44,15 @@
   //border: solid 1px red;
 }
 
-.command_infos {
-}
-
 .parameters {
   //border: solid 1px blue;
 }
 
-.board {
-  border: solid 1px black;
-}
-
-.app_button {
-    width:       200px;
-    padding:     10px 20px 10px 20px;
-    font-size:   20px;
+.param_button {
+    width:       160px;
+    margin:      5px 0px;
+    padding:     5px;
+    font-size:   16px;
 }
 
 .watch {

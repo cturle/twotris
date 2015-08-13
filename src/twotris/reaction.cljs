@@ -1,6 +1,6 @@
 (ns twotris.reaction
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [twotris.utils :as u]
+  (:require [twotris.utils :as u ];:refer [the]]
             [twotris.model.app :as app]
             [reagent.core :as reagent]) )
 
@@ -48,4 +48,48 @@
      (let [R-DIFFICULTY (u/r-get R-APP :DIFFICULTY)]
        (reaction ;(println "computing r-app-tick-period ...")
                  (app/tick-period @R-DIFFICULTY) )))))
+
+
+(def <r-app_r-action-key>
+  (memoize
+    (fn [R-APP]
+      ;(println "init <r-app_r-action-key>.")
+      (let [R-KEYBOARD (u/r-get R-APP :KEYBOARD)]
+        (reaction ;(println "computing <r-app_r-action-key>. KEYBOARD=" @R-KEYBOARD)
+                  (u/the (app/<Keyboard_action-key> @R-KEYBOARD)) )))))
+
+(def <r-app_r-<Key_Game*Action>>
+  (memoize
+    (fn [R-APP]
+      ;(println "init <r-app_r-<Key_Game*Action>>.")
+      (let [R-ACTION-KEY (<r-app_r-action-key> R-APP)]
+        (reaction ;(println "computing <r-app_r-<Key_Game*Action>>.")
+                  (u/the (app/<action-key_<Key_Game*Action>> @R-ACTION-KEY)) )))))
+
+(def <r-app*Game*Action_r-Key>
+  (memoize
+   (fn [R-APP GAME-ID ACTION]
+     ;(println "init <r-app*Game*Action_r-Key>. GAME-ID=" GAME-ID ", ACTION=" ACTION)
+     (let [R-ACTION-KEY (<r-app_r-action-key> R-APP)]
+       (reaction ;(println "computing <r-app*Game*Action_r-Key>. GAME-ID=" GAME-ID ", ACTION=" ACTION)
+                 (u/the (@R-ACTION-KEY [GAME-ID ACTION])) )))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
