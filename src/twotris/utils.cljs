@@ -5,6 +5,7 @@
 
 (def the (memoize identity))
 
+; r-get = <r-Map*Index_r-Any>
 (def r-get
   (memoize
    (fn [R-ATOM PP]

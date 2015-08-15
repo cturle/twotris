@@ -79,8 +79,11 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- 'Return' shortcut for Start/Restart
+- 'App commands :' view
+- try not to use "-watch" to handle Pure Data Reaction (not used in Views).
+- `u/r-Map*Index_r-Any`
 - +status+ => +status-name-map+
+- handle game keydown as app keydown ()
 - tweet 'the'
 - write 'overview' section
 - write Framework section
@@ -90,6 +93,7 @@ Todos list in order of priority :
 
 ## Versions
 
+1.3.0 : 'Return' shortcut for Start/Restart
 1.2.0 : +azerty/qwerty mode
 1.1.0 : +Easy/Moderate/Hard Mode
 1.0.4 : +tick-period using framework

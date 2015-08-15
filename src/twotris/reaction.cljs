@@ -74,7 +74,13 @@
        (reaction ;(println "computing <r-app*Game*Action_r-Key>. GAME-ID=" GAME-ID ", ACTION=" ACTION)
                  (u/the (@R-ACTION-KEY [GAME-ID ACTION])) )))))
 
-
+(def <r-app_r-keydown>
+  (memoize
+    (fn [R-APP]
+      ;(println "init <r-app_r-keydown>.")
+      (let [R-APP-STATUS (r-app-status R-APP)]
+        (reaction ;(println "computing <r-app_r-keydown>")
+                  (u/the (app/keydown @R-APP-STATUS)) )))))
 
 
 

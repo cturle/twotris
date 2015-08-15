@@ -28,7 +28,16 @@
 
 (def +default-keyboard+ :azerty-kb)
 
-(def +difficulty=>tick-period+ {:hard 200, :normal 400, :easy 800})
+(def +difficulty=>tick-period+ {:hard 250, :normal 500, :easy 1000})
+
+(def keydown
+  {:ready
+      {:return-Key [:activate-AppAction]}
+   :running
+      {}
+   :game-over
+      {:return-Key [:clear-games-AppAction]} })
+
 
 ;;; === ===
 
@@ -95,11 +104,13 @@
 (defn app-tick-period [APP]
   (tick-period (:DIFFICULTY APP)) )
 
-(def <Action_GameUpdater>
+(def <Action_Updater>
   {:rotate-action  game/rotate
    :left-action    game/move-left
    :drop-action    game/drop-to-ground
-   :right-action   game/move-right })
+   :right-action   game/move-right
+   :activate-AppAction    activate
+   :clear-games-AppAction clear-games })
 
 (def <Keyboard_action-key> +<Keyboard_action-key>-map+)
 
@@ -108,8 +119,6 @@
 (let [KEYBOARD=>KEYBOARD {:azerty-kb :qwerty-kb, :qwerty-kb :azerty-kb}]
   (defn other-keyboard [KEYBOARD]
     (get KEYBOARD=>KEYBOARD KEYBOARD) ))
-
-
 
 
 

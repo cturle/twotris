@@ -58,12 +58,14 @@
 
 
 ;;; === -VIEW ===
-(declare app-score-view
+(declare app-buttons
+         app-score-view
          app-status-view
          game-view
          left-info-view
          keydown-activation-watch
          keydown-configuration-watch
+         <r-app_r-keydown>-watch
          restart-button-view
          right-info-view
          start-button-view
@@ -71,7 +73,7 @@
          tick-period-watch )
 
 (defn app-view [R-APP]
-  ;(println "init app-view. R-APP=" R-APP)
+  ;(println "init app-view.")
   (let [R-GAME1         (u/r-get R-APP :GAME1)
         R-GAME2         (u/r-get R-APP :GAME2)
         R-APP-STATUS    (r/r-app-status R-APP) ]
@@ -82,11 +84,9 @@
         [:div.games
           [left-info-view R-APP] [game-view R-GAME1] [game-view R-GAME2] [right-info-view R-APP] ]
         [app-score-view R-APP]
-        (case @R-APP-STATUS
-          :ready      [start-button-view]
-          :game-over  [restart-button-view]
-          nil )
+        [app-buttons R-APP]
         [tick-activation-watch R-APP]
+        [<r-app_r-keydown>-watch R-APP]
         [keydown-activation-watch R-APP]
        ]
      )))
@@ -221,20 +221,25 @@
 ; actually not used
 (defn game-score-view [R-GAME]
   ;(println "init game-score-view ...")
-  (let [R-GAME-SCORE  (u/r-get R-GAME :SCORE)
-        GAME-REF      (:ref @R-GAME) ]
+  (let [R-GAME-SCORE  (u/r-get R-GAME :SCORE)]
     (fn []
-      ;(println "rendering game-score-view, ref=" GAME-REF)
+      ;(println "rendering game-score-view, ref=" (:ref @R-GAME))
       [:h2 (str @R-GAME-SCORE)] )))
 
+(defn app-buttons [R-APP]
+  (case @(r/r-app-status R-APP)
+    :ready      [start-button-view R-APP]
+    :game-over  [restart-button-view R-APP]
+    nil ))
 
-(defn restart-button-view []
+
+(defn restart-button-view [R-APP]
   ;(println "rendering restart-button-view ...")
   [:button.app_button {:on-click e/on-restart-button-click!}
                       "RESTART !"] )
 
 
-(defn start-button-view []
+(defn start-button-view [R-APP]
   ;(println "rendering start-button-view ...")
   [:button.app_button {:on-click e/on-start-button-click!}
                       "START !"] )
@@ -266,13 +271,15 @@
        (when @R-ACTIVATION
          [keydown-configuration-watch R-APP] )] ))
 
+(defn <r-app_r-keydown>-watch [R-APP]
+  ;(println "init/process <r-app_r-keydown>-watch ...")
+  (deref (r/<r-app_r-keydown> R-APP))
+  [:div.watch {:name "<r-app_r-keydown>-watch"}] )
 
 (defn keydown-configuration-watch [R-APP]
   ;(println "init/process keydown-configuration-watch ...")
   (deref (r/<r-app_r-<Key_Game*Action>> R-APP))
   [:div.watch {:name "keydown-configuration-watch"}] )
-
-
 
 
 

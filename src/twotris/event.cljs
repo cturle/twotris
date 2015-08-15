@@ -15,12 +15,22 @@
    :s-key  83
    :w-key  87
    :z-key  90
+   :return-Key 13
    :up-key 38
    :left-key  37
    :down-key  40
    :right-key 39} )
 
 (def <Code_Key> (clojure.set/map-invert <Key_Code>))
+
+(defn on-app-keydown! [e]
+  (let [KEY              (-> e .-keyCode <Code_Key>)
+        [ACTION & ARGS]  ((deref (r/<r-app_r-keydown> @+rr-app-state+)) KEY) ]
+    ;(println "key pressed = " KEY)
+    (when ACTION
+      ;(println "key handled = " KEY ", APP-ACTION-CALL=" (cons ACTION ARGS))
+      (.preventDefault e)
+      (apply swap! @+rr-app-state+ (app/<Action_Updater> ACTION) ARGS) )))
 
 (defn on-keydown! [e]
   (let [KEY            (-> e .-keyCode <Code_Key>)
@@ -29,7 +39,7 @@
     (when (and GAME ACTION)
       ;(println "key handled = " KEY ", GAME=" GAME ", ACTION=" ACTION)
       (.preventDefault e)
-      (swap! @+rr-app-state+ update GAME (app/<Action_GameUpdater> ACTION)) )))
+      (swap! @+rr-app-state+ update GAME (app/<Action_Updater> ACTION)) )))
 
 (let [r-activated (atom false)]
 
@@ -111,9 +121,8 @@
         (add-tick!) )))
 )
 
-
-
-
+(defonce init-permanent-handlers
+  (do (.addEventListener js/document "keydown" on-app-keydown!)) )
 
 
 
