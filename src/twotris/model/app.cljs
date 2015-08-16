@@ -30,7 +30,7 @@
 
 (def +difficulty=>tick-period+ {:hard 250, :normal 500, :easy 1000})
 
-(def keydown
+(def +<mio-Status*<mio-Keydown>>+
   {:ready
       {:return-Key [:activate-AppAction]}
    :running
@@ -119,6 +119,51 @@
 (let [KEYBOARD=>KEYBOARD {:azerty-kb :qwerty-kb, :qwerty-kb :azerty-kb}]
   (defn other-keyboard [KEYBOARD]
     (get KEYBOARD=>KEYBOARD KEYBOARD) ))
+
+; keydown : Status -> Keydown
+; Keydown : <rel-Key*ActionCall>
+(defn keydown [STATUS]
+  (let [Keydown-mio (get +<mio-Status*<mio-Keydown>>+ STATUS)
+        Keydown-voo (into [] Keydown-mio) ]
+    (fn [F-TYPE]
+      (case F-TYPE
+       (:fio :mio) Keydown-mio
+       :voo        Keydown-voo
+       (throw (str "unknown F-TYPE=" F-TYPE)) ))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -11,11 +11,13 @@
 
 
 ;;; === Parameters===
-(def +action-name-map+
+(def action-name
   {:rotate-action "rotate"
    :left-action   "move left"
    :drop-action   "drop down"
-   :right-action  "move right" })
+   :right-action  "move right"
+   :activate-AppAction    "start"
+   :clear-games-AppAction "restart" })
 
 (def +block-size+ 50)
 
@@ -28,17 +30,18 @@
 (def +keyboard=>bt-label-map+
   {:azerty-kb "GO QWERTY !", :qwerty-kb "GO AZERTY !"} )
 
-(def +key-name-map+
-  {:a-key     "A"
-   :d-key     "D"
-   :q-key     "Q"
-   :s-key     "S"
-   :w-key     "W"
-   :z-key     "Z"
-   :up-key    "UP"
-   :left-key  "LEFT"
-   :down-key  "DOWN"
-   :right-key "RIGHT" })
+(def key-name
+  {:a-key      "A"
+   :d-key      "D"
+   :q-key      "Q"
+   :s-key      "S"
+   :w-key      "W"
+   :z-key      "Z"
+   :return-Key "RET"
+   :up-key     "UP"
+   :left-key   "LEFT"
+   :down-key   "DOWN"
+   :right-key  "RIGHT" })
 
 (def +status+
   {:ready     "Ready !"
@@ -47,30 +50,25 @@
 
 
 
-;;; === Accessors ===
-
-(defn action-name [ACTION]
-  (get +action-name-map+ ACTION) )
-
-(defn key-name [KEY]
-  (get +key-name-map+ KEY) )
-
-
-
 ;;; === -VIEW ===
-(declare app-buttons
+(declare app-buttons-view
+         app-command-info-view
          app-score-view
          app-status-view
+         command-info-view
+         game-command-info-view
          game-view
          left-info-view
          keydown-activation-watch
          keydown-configuration-watch
-         <r-app_r-keydown>-watch
+         parameters-view
+         <r-app_r-keydown-fio>-watch
          restart-button-view
          right-info-view
          start-button-view
          tick-activation-watch
          tick-period-watch )
+
 
 (defn app-view [R-APP]
   ;(println "init app-view.")
@@ -84,9 +82,9 @@
         [:div.games
           [left-info-view R-APP] [game-view R-GAME1] [game-view R-GAME2] [right-info-view R-APP] ]
         [app-score-view R-APP]
-        [app-buttons R-APP]
+        [app-buttons-view R-APP]
         [tick-activation-watch R-APP]
-        [<r-app_r-keydown>-watch R-APP]
+        [<r-app_r-keydown-fio>-watch R-APP]
         [keydown-activation-watch R-APP]
        ]
      )))
@@ -100,25 +98,30 @@
       [(if (= :game-over @R-APP-STATUS) :div.app_red_infos :div.app_infos) (get +status+ @R-APP-STATUS "status?")] )))
 
 
-(declare command-info-view
-         parameters-view )
-
 (defn left-info-view [R-APP]
   [:div.infos
-   [command-info-view R-APP :GAME1]
+   [game-command-info-view R-APP :GAME1]
    [parameters-view R-APP] ])
 
 
-(defn command-info-view [R-APP GAME-ID]
+(defn command-info-view
+  ([ACTION*KEY]
+   (command-info-view ACTION*KEY "") )
+  ([ACTION*KEY PREFIX]
+   [:div.command_infos
+     [:p (str PREFIX "Commands :")]
+       (into [:ul]
+             (for [[A K] ACTION*KEY]
+               [:li (str "'" (key-name K) "' : " (action-name A))] ))]))
+
+
+(defn game-command-info-view [R-APP GAME-ID]
   ;(println "init command-info-view. GAME-ID=" GAME-ID)
   (let [ACTION-vec  +command-action-vec+
-        R-KEY-vec   (mapv #(r/<r-app*Game*Action_r-Key> R-APP GAME-ID %) ACTION-vec)
-        LI-VIEW     (fn [ACTION R-KEY] [:li (str "'" (key-name @R-KEY) "' : " (action-name ACTION))]) ]
+        R-KEY-vec   (mapv #(r/<r-app*Game*Action_r-Key> R-APP GAME-ID %) ACTION-vec) ]
     (fn []
       ;(println "process command-info-view. GAME-ID=" GAME-ID)
-      [:div.command_infos
-        [:p "Commands :"]
-        (into [:ul] (map LI-VIEW ACTION-vec R-KEY-vec) )])))
+      (command-info-view (mapv #(vector %1 (deref %2)) ACTION-vec R-KEY-vec) (str (name GAME-ID) " ")) )))
 
 
 (declare difficulty-view
@@ -189,7 +192,15 @@
 
 (defn right-info-view [R-APP]
   [:div.infos
-   [command-info-view R-APP :GAME2] ])
+   [game-command-info-view R-APP :GAME2]
+   [app-command-info-view R-APP] ])
+
+(defn app-command-info-view [R-APP]
+  ;(println "init app-command-info-view.")
+  (let [R-KEYDOWN   (r/<r-app_r-keydown> R-APP)]
+    (fn []
+      ;(println "process app-command-info-view.")
+      (command-info-view (mapv (fn [[K AC]] (vector (first AC) K)) (@R-KEYDOWN :voo)) "App ") )))
 
 
 (declare color-view)
@@ -226,7 +237,7 @@
       ;(println "rendering game-score-view, ref=" (:ref @R-GAME))
       [:h2 (str @R-GAME-SCORE)] )))
 
-(defn app-buttons [R-APP]
+(defn app-buttons-view [R-APP]
   (case @(r/r-app-status R-APP)
     :ready      [start-button-view R-APP]
     :game-over  [restart-button-view R-APP]
@@ -271,10 +282,10 @@
        (when @R-ACTIVATION
          [keydown-configuration-watch R-APP] )] ))
 
-(defn <r-app_r-keydown>-watch [R-APP]
-  ;(println "init/process <r-app_r-keydown>-watch ...")
-  (deref (r/<r-app_r-keydown> R-APP))
-  [:div.watch {:name "<r-app_r-keydown>-watch"}] )
+(defn <r-app_r-keydown-fio>-watch [R-APP]
+  ;(println "init/process <r-app_r-keydown-fio>-watch ...")
+  (deref (r/<r-app_r-keydown-fio> R-APP))
+  [:div.watch {:name "<r-app_r-keydown-fio>-watch"}] )
 
 (defn keydown-configuration-watch [R-APP]
   ;(println "init/process keydown-configuration-watch ...")

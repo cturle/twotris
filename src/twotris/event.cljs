@@ -25,7 +25,7 @@
 
 (defn on-app-keydown! [e]
   (let [KEY              (-> e .-keyCode <Code_Key>)
-        [ACTION & ARGS]  ((deref (r/<r-app_r-keydown> @+rr-app-state+)) KEY) ]
+        [ACTION & ARGS]  ((deref (r/<r-app_r-keydown-fio> @+rr-app-state+)) KEY) ]
     ;(println "key pressed = " KEY)
     (when ACTION
       ;(println "key handled = " KEY ", APP-ACTION-CALL=" (cons ACTION ARGS))
@@ -75,8 +75,8 @@
 
 
 (defn on-tick! []
-  (when (not= :running (app/app-status @@+rr-app-state+)) (println "ERROR: on-tick while not running."))
   ;(println "on-tick event ..." (.getTime (js/Date.)))
+  (when (not= :running (app/app-status @@+rr-app-state+)) (throw "ERROR: on-tick while not running."))
   (swap! @+rr-app-state+ app/gravity) )
 
 
@@ -85,14 +85,14 @@
 
   (defn add-tick! []
     ;(println "add-tick! ...")
-    (when @r-current-timer-id (println "ERROR: add-tick, with timer-id = " @r-current-timer-id))
+    (when @r-current-timer-id  (throw (str "ERROR: add-tick, with timer-id = " @r-current-timer-id)))
     (reset! r-current-period   (app/app-tick-period @@+rr-app-state+))
     (reset! r-current-timer-id (js/setInterval on-tick! @r-current-period)) )
 
   (defn remove-tick! []
     ;(println "remove-tick! ...")
     (if-not @r-current-timer-id
-      (println "ERROR: remove-tick!, with no timer-id")
+      (throw "ERROR: remove-tick!, with no timer-id")
       (do (js/clearInterval @r-current-timer-id)
           (reset! r-current-period   nil)
           (reset! r-current-timer-id nil) )))
@@ -110,8 +110,9 @@
     (when @r-current-timer-id
       (remove-tick!) ))
 
-  (defn on-tick-activation! [ACTIVATION]
-    (if ACTIVATION (ensure-tick-is-activated!) (ensure-tick-is-not-activated!)) )
+  (defn on-tick-activation! [ACTIVATION?]
+    ;(println "on-tick-activation! ...")
+    (if ACTIVATION? (ensure-tick-is-activated!) (ensure-tick-is-not-activated!)) )
 
   (defn on-tick-period! []
     ;(println "ensure-tick-period! ...")
@@ -121,8 +122,10 @@
         (add-tick!) )))
 )
 
-(defonce init-permanent-handlers
-  (do (.addEventListener js/document "keydown" on-app-keydown!)) )
+(defonce init-handlers
+  (do (.addEventListener js/document "keydown" on-app-keydown!)
+      ;(add-watch (r/r-app-tick-activation R-APP) :on-tick-activation! #(on-tick-activation! %4))
+    ))
 
 
 

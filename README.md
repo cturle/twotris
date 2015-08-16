@@ -79,11 +79,12 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- 'App commands :' view
+- fix "Uncaught ERROR: on-tick while not running."
 - try not to use "-watch" to handle Pure Data Reaction (not used in Views).
 - `u/r-Map*Index_r-Any`
 - +status+ => +status-name-map+
 - handle game keydown as app keydown ()
+- refactor button-view
 - tweet 'the'
 - write 'overview' section
 - write Framework section
@@ -93,9 +94,9 @@ Todos list in order of priority :
 
 ## Versions
 
-1.3.0 : 'Return' shortcut for Start/Restart
-1.2.0 : +azerty/qwerty mode
-1.1.0 : +Easy/Moderate/Hard Mode
+1.3.x : 'Return' shortcut for Start/Restart + 'App commands :' view
+1.2.x : +azerty/qwerty mode
+1.1.x : +Easy/Moderate/Hard Mode
 1.0.4 : +tick-period using framework
 1.0.3 : +keydown-activation using framework
 1.0.2 : +tick-activation using framework

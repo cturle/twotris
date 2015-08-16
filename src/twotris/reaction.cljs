@@ -80,7 +80,29 @@
       ;(println "init <r-app_r-keydown>.")
       (let [R-APP-STATUS (r-app-status R-APP)]
         (reaction ;(println "computing <r-app_r-keydown>")
-                  (u/the (app/keydown @R-APP-STATUS)) )))))
+                  (app/keydown @R-APP-STATUS) )))))
+
+(def <r-app_r-keydown-fio>
+  (memoize
+    (fn [R-APP]
+      ;(println "init <r-app_r-keydown-fio>.")
+      (let [R-KEYDOWN (<r-app_r-keydown> R-APP)]
+        (reaction ;(println "computing <r-app_r-keydown-fio>")
+                  (@R-KEYDOWN :fio) )))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
