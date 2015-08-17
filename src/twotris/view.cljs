@@ -170,19 +170,19 @@
 
 (defn game-board-graphic-view [R-GAME]
   (let [{:keys [PIECE COLOR X Y BLOCK-PILE DONE]} @R-GAME
-        PIECE-WIDTH   (count PIECE)
-        PIECE-HEIGHT  (count (first PIECE))
         BLOCK-WIDTH   (count BLOCK-PILE)
         BLOCK-HEIGHT  (count (first BLOCK-PILE)) ]
     ;(println "computing game-board-graphic-view, ref=" (:ref @R-GAME))
     [:svg.board {:style    {:width 200, :height 400}
                  :view-box (string/join " " [0 0 10 20])}
-      (when-not DONE
-        (into [:g {:name "current piece"}]
-              (for [I (range PIECE-WIDTH)
-                    J (range PIECE-HEIGHT)
-                    :when (pos? (get-in PIECE [I J])) ]
-                [block (+ X I) (+ Y J) COLOR] )))
+      (when (and PIECE X Y COLOR)
+        (let [PIECE-WIDTH   (count PIECE)
+              PIECE-HEIGHT  (count (first PIECE)) ]
+          (into [:g {:name "current piece"}]
+                (for [I (range PIECE-WIDTH)
+                      J (range PIECE-HEIGHT)
+                      :when (pos? (get-in PIECE [I J])) ]
+                  [block (+ X I) (+ Y J) COLOR] ))))
       (into [:g {:name "block pile"}]
             (for [I (range BLOCK-WIDTH)
                   J (range BLOCK-HEIGHT)

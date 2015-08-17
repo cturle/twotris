@@ -44,58 +44,50 @@
     {:SCORE 0
      :BLOCK-PILE (make-block-pile 10 20)}))
 
-(defn valid-game? [{:keys [X Y PIECE BLOCK-PILE DONE]}]
-  (every? #{-1}
+(defn valid-game? [{:keys [X Y PIECE BLOCK-PILE]}]
+  (if (and PIECE X Y)
+    (every? #{-1}
           (for [I (range (count PIECE))
                 J (range (count (first PIECE)))
                 :when (pos? (get-in PIECE [I J]))
                 :let [MATRIX-X (+ X I)
                       MATRIX-Y (+ Y J)]]
-            (get-in BLOCK-PILE [MATRIX-X MATRIX-Y]))))
+            (get-in BLOCK-PILE [MATRIX-X MATRIX-Y]) ))
+    true ))
 
 (defn complete? [ROW]
   (not-any? #{-1} ROW) )
 
-(defn with-completed-rows [{:as GAME :keys [BLOCK-PILE]}]
+(defn with-completed-rows [{:as GAME :keys [BLOCK-PILE SCORE]}]
   (let [REMAINING-ROWS (remove complete? (transpose BLOCK-PILE))
         CC             (- 20 (count REMAINING-ROWS))
-        NEW-ROWS       (repeat CC (vec (repeat 10 -1))) ]
-    (-> GAME
-        (update-in [:SCORE] inc)
-        (update-in [:SCORE] + (* 10 CC CC))
-        (assoc :BLOCK-PILE (transpose (concat NEW-ROWS REMAINING-ROWS))))))
+        NEW-ROWS       (repeat CC (vec (repeat 10 -1)))
+        NEW-SCORE      (+ (inc SCORE) (* 10 CC CC))]
+    (assoc GAME :SCORE NEW-SCORE
+                :BLOCK-PILE (transpose (concat NEW-ROWS REMAINING-ROWS)) )))
 
 (defn collect-piece [BLOCK-PILE [X Y COLOR]]
   (assoc-in BLOCK-PILE [X Y] COLOR) )
 
 (defn push-piece [{:as GAME :keys [PIECE COLOR X Y BLOCK-PILE]}]
-  (let [PIECE-WIDTH   (count PIECE)
-        PIECE-HEIGHT  (count (first PIECE))]
-    (assoc GAME :BLOCK-PILE
-           (reduce collect-piece BLOCK-PILE
-                   (for [I (range PIECE-WIDTH)
-                         J (range PIECE-HEIGHT)
-                         :when (pos? (get-in PIECE [I J]))]
-                     [(+ X I) (+ Y J) COLOR])))))
+  (if (and PIECE X Y)
+    (let [PIECE-WIDTH   (count PIECE)
+          PIECE-HEIGHT  (count (first PIECE))]
+      (assoc GAME :PIECE nil :X nil :Y nil
+        :BLOCK-PILE  (reduce collect-piece BLOCK-PILE
+                       (for [I (range PIECE-WIDTH)
+                             J (range PIECE-HEIGHT)
+                             :when (pos? (get-in PIECE [I J]))]
+                         [(+ X I) (+ Y J) COLOR] ))))
+    GAME ))
 
-(defn maybe-done [GAME]
-  (if (valid-game? GAME)
-    GAME
-    (assoc GAME :DONE true)))
 
 (defn landed [GAME]
-  (-> GAME
-      push-piece
-      with-completed-rows
-      with-new-piece
-      maybe-done))
-
-;(defn maybe-step [GAME F]
-;  (let [NEW-GAME (F GAME)]
-;    (if (valid-game? NEW-GAME)
-;      NEW-GAME
-;      GAME )))
-
+  (let [S1 (with-completed-rows (push-piece GAME))
+        S2 (with-new-piece S1) ]
+    (if (valid-game? S2)
+      S2
+      (assoc S1 :DONE true) )))
 
 (defn move-down-unchecked [GAME]
   (update-in GAME [:Y] inc))
@@ -126,6 +118,14 @@
 
 (defn drop-to-ground [GAME]
   (landed (last (take-while valid-game? (iterate move-down-unchecked GAME)))))
+
+
+
+
+
+
+
+
 
 
 

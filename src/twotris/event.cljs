@@ -3,7 +3,8 @@
             [reagent.core  :as reagent]
             [twotris.model.app  :as app]
             [twotris.model.game :as game]
-            [twotris.reaction   :as r] ))
+            [twotris.reaction   :as r]
+            [twotris.utils   :as u] ))
 
 
 (defonce +rr-app-state+ (atom {}))
@@ -76,8 +77,8 @@
 
 (defn on-tick! []
   ;(println "on-tick event ..." (.getTime (js/Date.)))
-  (when (not= :running (app/app-status @@+rr-app-state+)) (throw "ERROR: on-tick while not running."))
-  (swap! @+rr-app-state+ app/gravity) )
+  (when @(r/r-app-tick-activation @+rr-app-state+)
+    (swap! @+rr-app-state+ app/gravity) ))
 
 
 (let [r-current-period   (atom nil)
@@ -122,9 +123,10 @@
         (add-tick!) )))
 )
 
-(defonce init-handlers
+(defn init-handlers [R-APP]
   (do (.addEventListener js/document "keydown" on-app-keydown!)
-      ;(add-watch (r/r-app-tick-activation R-APP) :on-tick-activation! #(on-tick-activation! %4))
+      (add-watch (u/r-get R-APP :GAME1) :check-valid-game #(when-not (game/valid-game? %4) (throw (str "game not valid. before=" %3 ", after=" %4)))) ; for debug purpose only
+      (add-watch (u/r-get R-APP :GAME2) :check-valid-game #(when-not (game/valid-game? %4) (throw (str "game not valid. before=" %3 ", after=" %4)))) ; for debug purpose only
     ))
 
 

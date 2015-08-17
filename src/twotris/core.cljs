@@ -19,6 +19,8 @@
 )
 
 (defonce start
-  (on-js-reload) )
+  (do (on-js-reload)
+      (e/init-handlers +r-app-state+)
+      :started ))
 
 ;(println "core file loaded ...")
