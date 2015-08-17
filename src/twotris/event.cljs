@@ -84,43 +84,32 @@
 (let [r-current-period   (atom nil)
       r-current-timer-id (atom nil) ]
 
-  (defn add-tick! []
-    ;(println "add-tick! ...")
+  (defn add-tick! [PERIOD]
+    ;(println "add-tick!, PERIOD=" PERIOD)
     (when @r-current-timer-id  (throw (str "ERROR: add-tick, with timer-id = " @r-current-timer-id)))
-    (reset! r-current-period   (app/app-tick-period @@+rr-app-state+))
-    (reset! r-current-timer-id (js/setInterval on-tick! @r-current-period)) )
+    (reset! r-current-period   PERIOD)
+    (reset! r-current-timer-id (js/setInterval on-tick! PERIOD)) )
 
   (defn remove-tick! []
-    ;(println "remove-tick! ...")
-    (if-not @r-current-timer-id
-      (throw "ERROR: remove-tick!, with no timer-id")
-      (do (js/clearInterval @r-current-timer-id)
-          (reset! r-current-period   nil)
-          (reset! r-current-timer-id nil) )))
+    ;(println "remove-tick!")
+    (when-not @r-current-timer-id (throw "ERROR: remove-tick!, with no timer-id"))
+    (js/clearInterval @r-current-timer-id)
+    (reset! r-current-period   nil)
+    (reset! r-current-timer-id nil) )
 
-  (defn ensure-tick-is-activated! []
-    ;(println "ensure-tick-is-activated! ...")
-    (cond (and @r-current-timer-id (not= @r-current-period (app/app-tick-period @@+rr-app-state+)))
+  (defn ensure-tick-is-activated! [PERIOD]
+    ;(println "ensure-tick-is-activated!, PERIOD=" PERIOD)
+    (cond (and @r-current-timer-id (not= @r-current-period PERIOD))
           (do (remove-tick!)
-              (add-tick!) )
+              (add-tick! PERIOD) )
           (not @r-current-timer-id)
-            (add-tick!) ))
+            (add-tick! PERIOD) ))
 
   (defn ensure-tick-is-not-activated! []
-    ;(println "ensure-tick-is-not-activated! ...")
+    ;(println "ensure-tick-is-not-activated!")
     (when @r-current-timer-id
       (remove-tick!) ))
 
-  (defn on-tick-activation! [ACTIVATION?]
-    ;(println "on-tick-activation! ...")
-    (if ACTIVATION? (ensure-tick-is-activated!) (ensure-tick-is-not-activated!)) )
-
-  (defn on-tick-period! []
-    ;(println "ensure-tick-period! ...")
-    (when @r-current-timer-id
-      (when (not= @r-current-period (app/app-tick-period @@+rr-app-state+))
-        (remove-tick!)
-        (add-tick!) )))
 )
 
 (defn init-handlers [R-APP]

@@ -66,8 +66,8 @@
          restart-button-view
          right-info-view
          start-button-view
-         tick-activation-watch
-         tick-period-watch )
+         tick-watch )
+
 
 
 (defn app-view [R-APP]
@@ -83,7 +83,7 @@
           [left-info-view R-APP] [game-view R-GAME1] [game-view R-GAME2] [right-info-view R-APP] ]
         [app-score-view R-APP]
         [app-buttons-view R-APP]
-        [tick-activation-watch R-APP]
+        [tick-watch R-APP]
         [<r-app_r-keydown-fio>-watch R-APP]
         [keydown-activation-watch R-APP]
        ]
@@ -259,20 +259,14 @@
 
 ;;; === -WATCH ===
 
-(defn tick-activation-watch [R-APP]
-  ;(println "init/process tick-activation-watch ...")
-  (let [R-ACTIVATION (r/r-app-tick-activation R-APP)]
-    (u/run-js-from-component! e/on-tick-activation! @R-ACTIVATION)
-    [:div.watch {:name "tick-activation-watch"}
-      (when @R-ACTIVATION
-        [tick-period-watch R-APP] )] ))
-
-
-(defn tick-period-watch [R-APP]
-  ;(println "init/process tick-period-watch ...")
-  (u/run-js-from-component! e/on-tick-period! @(r/r-app-tick-period R-APP))
-  [:div.watch {:name (str "tick-period-watch!")}] )
-
+(defn tick-watch [R-APP]
+  ;(println "init/process tick-watch ...")
+  (let [R-ACTIVATION (r/r-app-tick-activation R-APP)
+        R-PERIOD     (r/r-app-tick-period R-APP) ]
+    (if @R-ACTIVATION
+      (e/ensure-tick-is-activated! @R-PERIOD)
+      (e/ensure-tick-is-not-activated!) )
+    [:div.watch {:name "tick-watch"}] ))
 
 (defn keydown-activation-watch [R-APP]
   ;(println "init/process keydown-activation-watch ...")
