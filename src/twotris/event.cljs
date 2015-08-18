@@ -114,10 +114,12 @@
 
 (defn init-handlers [R-APP]
   (do (.addEventListener js/document "keydown" on-app-keydown!)
-      (add-watch (u/r-get R-APP :GAME1) :check-valid-game #(when-not (game/valid-game? %4) (throw (str "game not valid. before=" %3 ", after=" %4)))) ; for debug purpose only
-      (add-watch (u/r-get R-APP :GAME2) :check-valid-game #(when-not (game/valid-game? %4) (throw (str "game not valid. before=" %3 ", after=" %4)))) ; for debug purpose only
+      ;(add-watch (u/r-get R-APP :GAME1) :check-valid-game #(when-not (game/valid-game? %4) (throw (str "game not valid. before=" %3 ", after=" %4)))) ; for debug purpose only
+      ;(add-watch (u/r-get R-APP :GAME2) :check-valid-game #(when-not (game/valid-game? %4) (throw (str "game not valid. before=" %3 ", after=" %4)))) ; for debug purpose only
     ))
 
+; at repl to auto-play
+; (add-watch (r/r-app-status @+rr-app-state+) :auto-play #(when (= :game-over %4) (js/setTimeout (fn [] (swap! @+rr-app-state+ app/clear-games)) 0)))
 
 
 

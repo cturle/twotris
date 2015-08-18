@@ -19,6 +19,9 @@
 
 (def +nb-colors+ 11)
 
+(defn piece-in-game? [{:keys [PIECE X Y]}]
+  (and PIECE X Y) )
+
 (defn make-block-pile [X Y]
   (vec (repeat X (vec (repeat Y -1)))))
 
@@ -30,6 +33,9 @@
 
 (defn rand-piece []
   (transpose (rand-nth +pieces+)))
+
+(defn complete? [ROW]
+  (not-any? #{-1} ROW) )
 
 (defn with-new-piece [GAME]
   (let [PIECE (rand-piece)]
@@ -44,19 +50,19 @@
     {:SCORE 0
      :BLOCK-PILE (make-block-pile 10 20)}))
 
-(defn valid-game? [{:keys [X Y PIECE BLOCK-PILE]}]
-  (if (and PIECE X Y)
-    (every? #{-1}
-          (for [I (range (count PIECE))
-                J (range (count (first PIECE)))
-                :when (pos? (get-in PIECE [I J]))
-                :let [MATRIX-X (+ X I)
-                      MATRIX-Y (+ Y J)]]
-            (get-in BLOCK-PILE [MATRIX-X MATRIX-Y]) ))
-    true ))
+(defn valid-game? [GAME]
+  (when (nil? GAME) (throw "nil GAME."))
+  (if (piece-in-game? GAME)
+    (let [{:keys [X Y PIECE BLOCK-PILE]} GAME]
+      (every? #{-1}
+              (for [I (range (count PIECE))
+                    J (range (count (first PIECE)))
+                    :when (pos? (get-in PIECE [I J]))
+                    :let [MATRIX-X (+ X I)
+                          MATRIX-Y (+ Y J) ]]
+                (get-in BLOCK-PILE [MATRIX-X MATRIX-Y]) )))
+     true ))
 
-(defn complete? [ROW]
-  (not-any? #{-1} ROW) )
 
 (defn with-completed-rows [{:as GAME :keys [BLOCK-PILE SCORE]}]
   (let [REMAINING-ROWS (remove complete? (transpose BLOCK-PILE))
@@ -70,15 +76,16 @@
   (assoc-in BLOCK-PILE [X Y] COLOR) )
 
 (defn push-piece [{:as GAME :keys [PIECE COLOR X Y BLOCK-PILE]}]
-  (if (and PIECE X Y)
+  (if (piece-in-game? GAME)
     (let [PIECE-WIDTH   (count PIECE)
           PIECE-HEIGHT  (count (first PIECE))]
       (assoc GAME :PIECE nil :X nil :Y nil
-        :BLOCK-PILE  (reduce collect-piece BLOCK-PILE
-                       (for [I (range PIECE-WIDTH)
-                             J (range PIECE-HEIGHT)
-                             :when (pos? (get-in PIECE [I J]))]
-                         [(+ X I) (+ Y J) COLOR] ))))
+                  :BLOCK-PILE  (reduce collect-piece
+                                       BLOCK-PILE
+                                       (for [I (range PIECE-WIDTH)
+                                             J (range PIECE-HEIGHT)
+                                             :when (pos? (get-in PIECE [I J]))]
+                                         [(+ X I) (+ Y J) COLOR] ))))
     GAME ))
 
 
@@ -90,34 +97,51 @@
       (assoc S1 :DONE true) )))
 
 (defn move-down-unchecked [GAME]
-  (update-in GAME [:Y] inc))
+  (update-in GAME [:Y] inc) )
+
+;;; ===== game commands
 
 (defn gravity [GAME]
-  (let [NEW-GAME  (move-down-unchecked GAME)]
-    (if (valid-game? NEW-GAME)
-      NEW-GAME
-      (landed GAME))))
+  (when (nil? GAME) (throw "nil GAME."))
+  (if (piece-in-game? GAME)
+    (let [NEW-GAME  (move-down-unchecked GAME)]
+      (if (valid-game? NEW-GAME)
+        NEW-GAME
+        (landed GAME) ))
+    GAME ))
 
 (defn move-left [GAME]
-  (let [NEW-GAME (update-in GAME [:X] dec)]
-    (if (valid-game? NEW-GAME)
-      NEW-GAME
-      GAME )))
+  (when (nil? GAME) (throw "nil GAME."))
+  (if (piece-in-game? GAME)
+    (let [NEW-GAME (update-in GAME [:X] dec)]
+      (if (valid-game? NEW-GAME)
+        NEW-GAME
+        GAME ))
+    GAME ))
 
 (defn move-right [GAME]
-  (let [NEW-GAME (update-in GAME [:X] inc)]
-    (if (valid-game? NEW-GAME)
-      NEW-GAME
-      GAME )))
+  (when (nil? GAME) (throw "nil GAME."))
+  (if (piece-in-game? GAME)
+    (let [NEW-GAME (update-in GAME [:X] inc)]
+      (if (valid-game? NEW-GAME)
+        NEW-GAME
+        GAME ))
+    GAME ))
 
 (defn rotate [GAME]
-  (let [NEW-GAME (update-in GAME [:PIECE] (comp transpose flip))]
-    (if (valid-game? NEW-GAME)
-      NEW-GAME
-      GAME )))
+  (when (nil? GAME) (throw "nil GAME."))
+  (if (piece-in-game? GAME)
+    (let [NEW-GAME (update-in GAME [:PIECE] (comp transpose flip))]
+      (if (valid-game? NEW-GAME)
+        NEW-GAME
+        GAME ))
+    GAME ))
 
 (defn drop-to-ground [GAME]
-  (landed (last (take-while valid-game? (iterate move-down-unchecked GAME)))))
+  (when (nil? GAME) (throw "nil GAME."))
+  (if (piece-in-game? GAME)
+    (landed (last (take-while valid-game? (iterate move-down-unchecked GAME))))
+    GAME ))
 
 
 
