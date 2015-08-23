@@ -1,4 +1,5 @@
-(ns twotris.model.game)
+(ns twotris.model.game
+  (:require [twotris.orto.world :as ow]) )
 
 (def +pieces+
   [[[0 0 0 0]
@@ -101,14 +102,18 @@
 
 ;;; ===== game commands
 
-(defn gravity [GAME]
-  (when (nil? GAME) (throw "nil GAME."))
-  (if (piece-in-game? GAME)
-    (let [NEW-GAME  (move-down-unchecked GAME)]
-      (if (valid-game? NEW-GAME)
-        NEW-GAME
-        (landed GAME) ))
-    GAME ))
+(def +tetris-WorldDef+
+  {:valid?-Fn valid-game?
+   :Transition {:gravity {:ActionFn              #(let [G (move-down-unchecked %)] (if (valid-game? G) G (landed G)))
+                          :eligible?-Fn          piece-in-game?
+                          :Action-always-valid?  true }
+                ; todo
+                }})
+
+(def +tetris-WorldEngine+ (ow/<WorldDef_WorldEngine> +tetris-WorldDef+))
+
+(def gravity (get-in +tetris-WorldEngine+ [:TransitionFn :gravity]))
+
 
 (defn move-left [GAME]
   (when (nil? GAME) (throw "nil GAME."))
