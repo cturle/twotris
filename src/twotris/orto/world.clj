@@ -4,21 +4,26 @@
 (declare transition-fn)
 
 
-; todo
-(defn <WorldDef_WorldEngine> [WD]
-  (let []
-    {:transition-Fn-by-name (into {} name*Fn-voo)} ))
+(defn <World_WorldEngine> [W]
+  (let [NAME*TRANSITION-mio  (into {} (for [[NAME TRANSITION] (get W :Transition)] [NAME (transition-fn-from-transition TRANSITION (:valid?-Fn W))]))]
+    {:TransitionFn NAME*TRANSITION-mio} ))
 
 
-; transifion-fn : <Transition*Fn_Fn>
+; <Transition*Fn_Fn>
+(defn transition-fn-from-transition
+  [{ELIGIBLE?-FN :eligible?-Fn, ACTION-FN :ActionFn} VALID?-FN]
+  (transition-fn VALID?-FN ELIGIBLE?-FN ACTION-FN) )
+
 (defn transition-fn
-  [TRANSITION VALID?-FN]
-  (let [{:keys ELIGIBLE?-FN ACTION-FN} TRANSITION]
-    (fn [CURRENT]
-      (when (nil? CURRENT) (throw "CURRENT is nil"))
-      (if (ELIGIBLE?-FN CURRENT)
-        (let [NEXT (ACTION-FN CURRENT)]
-          (if (VALID?-FN NEXT)
-            NEXT
-            CURRENT ))
-        CURRENT ))))
+  [VALID?-FN ELIGIBLE?-FN ACTION-FN]
+  (fn [CURRENT]
+    (when (nil? CURRENT) (throw "CURRENT is nil"))
+    (if (ELIGIBLE?-FN CURRENT)
+      (let [NEXT (ACTION-FN CURRENT)]
+        (if (VALID?-FN NEXT)
+          NEXT
+          CURRENT ))
+      CURRENT )))
+
+
+

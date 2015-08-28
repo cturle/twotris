@@ -102,51 +102,30 @@
 
 ;;; ===== game commands
 
-(def +tetris-WorldDef+
-  {:valid?-Fn valid-game?
-   :Transition {:gravity {:ActionFn              #(let [G (move-down-unchecked %)] (if (valid-game? G) G (landed G)))
-                          :eligible?-Fn          piece-in-game?
-                          :Action-always-valid?  true }
-                ; todo
+(def +World+
+  {:valid?-Fn  valid-game?
+   :Transition {:gravity         {:ActionFn              #(let [G (move-down-unchecked %)] (if (valid-game? G) G (landed G)))
+                                  :eligible?-Fn          piece-in-game?
+                                  :Action-always-valid?  true }
+                :move-left       {:ActionFn              #(update-in % [:X] dec)
+                                  :eligible?-Fn          piece-in-game? }
+                :move-right      {:ActionFn              #(update-in % [:X] inc)
+                                  :eligible?-Fn          piece-in-game? }
+                :rotate          {:ActionFn              #(update-in % [:PIECE] (comp transpose flip))
+                                  :eligible?-Fn          piece-in-game? }
+                :drop-to-ground  {:ActionFn              #(landed (last (take-while valid-game? (iterate move-down-unchecked %))))
+                                  :eligible?-Fn          piece-in-game?
+                                  :Action-always-valid?  true }
                 }})
 
-(def +tetris-WorldEngine+ (ow/<WorldDef_WorldEngine> +tetris-WorldDef+))
+(def +WorldEngine+ (ow/<World_WorldEngine> +World+))
 
-(def gravity (get-in +tetris-WorldEngine+ [:TransitionFn :gravity]))
+(def gravity        (get-in +WorldEngine+ [:TransitionFn :gravity]))
+(def move-left      (get-in +WorldEngine+ [:TransitionFn :move-left]))
+(def move-right     (get-in +WorldEngine+ [:TransitionFn :move-right]))
+(def rotate         (get-in +WorldEngine+ [:TransitionFn :rotate]))
+(def drop-to-ground (get-in +WorldEngine+ [:TransitionFn :drop-to-ground]))
 
-
-(defn move-left [GAME]
-  (when (nil? GAME) (throw "nil GAME."))
-  (if (piece-in-game? GAME)
-    (let [NEW-GAME (update-in GAME [:X] dec)]
-      (if (valid-game? NEW-GAME)
-        NEW-GAME
-        GAME ))
-    GAME ))
-
-(defn move-right [GAME]
-  (when (nil? GAME) (throw "nil GAME."))
-  (if (piece-in-game? GAME)
-    (let [NEW-GAME (update-in GAME [:X] inc)]
-      (if (valid-game? NEW-GAME)
-        NEW-GAME
-        GAME ))
-    GAME ))
-
-(defn rotate [GAME]
-  (when (nil? GAME) (throw "nil GAME."))
-  (if (piece-in-game? GAME)
-    (let [NEW-GAME (update-in GAME [:PIECE] (comp transpose flip))]
-      (if (valid-game? NEW-GAME)
-        NEW-GAME
-        GAME ))
-    GAME ))
-
-(defn drop-to-ground [GAME]
-  (when (nil? GAME) (throw "nil GAME."))
-  (if (piece-in-game? GAME)
-    (landed (last (take-while valid-game? (iterate move-down-unchecked GAME))))
-    GAME ))
 
 
 
