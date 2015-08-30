@@ -1,5 +1,6 @@
 (ns twotris.model.game
-  (:require [twotris.orto.world :as ow]) )
+  (:require ;[twotris.orto.engine :as oe]
+            [twotris.orto.world :as ow] ))
 
 (def +pieces+
   [[[0 0 0 0]
@@ -100,31 +101,37 @@
 (defn move-down-unchecked [GAME]
   (update-in GAME [:Y] inc) )
 
-;;; ===== game commands
+;;; ===== game commands auto-generated from specifications
 
-(def +World+
-  {:valid?-Fn  valid-game?
-   :Transition {:gravity         {:ActionFn              #(let [G (move-down-unchecked %)] (if (valid-game? G) G (landed G)))
-                                  :eligible?-Fn          piece-in-game?
-                                  :Action-always-valid?  true }
-                :move-left       {:ActionFn              #(update-in % [:X] dec)
-                                  :eligible?-Fn          piece-in-game? }
-                :move-right      {:ActionFn              #(update-in % [:X] inc)
-                                  :eligible?-Fn          piece-in-game? }
-                :rotate          {:ActionFn              #(update-in % [:PIECE] (comp transpose flip))
-                                  :eligible?-Fn          piece-in-game? }
-                :drop-to-ground  {:ActionFn              #(landed (last (take-while valid-game? (iterate move-down-unchecked %))))
-                                  :eligible?-Fn          piece-in-game?
-                                  :Action-always-valid?  true }
-                }})
+(ow/defspec
+  {:World  {:valid?-Fn  valid-game?
+            :Transition {:gravity         {:Action  :gravity}
+                         :move-left       {:Action  :move-left}
+                         :move-right      {:Action  :move-right}
+                         :rotate          {:Action  :rotate}
+                         :drop-to-ground  {:Action  :drop-to-ground}
+                         }
+            :Action     {:gravity         {:Code           #(let [G (move-down-unchecked %)] (if (valid-game? G) G (landed G)))
+                                           :eligible?-Fn   piece-in-game?
+                                           :always-valid?  true }
+                         :move-left       {:Code           #(update-in % [:X] dec)
+                                           :eligible?-Fn   piece-in-game? }
+                         :move-right      {:Code           #(update-in % [:X] inc)
+                                           :eligible?-Fn   piece-in-game? }
+                         :rotate          {:Code           #(update-in % [:PIECE] (comp transpose flip))
+                                           :eligible?-Fn   piece-in-game? }
+                         :drop-to-ground  {:Code           #(landed (last (take-while valid-game? (iterate move-down-unchecked %))))
+                                           :eligible?-Fn   piece-in-game?
+                                           :always-valid?  true }
+                         }
+            }
+   :Fn  [{:name :gravity,        :spec [:Transition :gravity]}
+         {:name :move-left,      :spec [:Transition :move-left]}
+         {:name :move-right,     :spec [:Transition :move-right]}
+         {:name :rotate,         :spec [:Transition :rotate]}
+         {:name :drop-to-ground, :spec [:Transition :drop-to-ground]} ]})
 
-(def +WorldEngine+ (ow/<World_WorldEngine> +World+))
 
-(def gravity        (get-in +WorldEngine+ [:TransitionFn :gravity]))
-(def move-left      (get-in +WorldEngine+ [:TransitionFn :move-left]))
-(def move-right     (get-in +WorldEngine+ [:TransitionFn :move-right]))
-(def rotate         (get-in +WorldEngine+ [:TransitionFn :rotate]))
-(def drop-to-ground (get-in +WorldEngine+ [:TransitionFn :drop-to-ground]))
 
 
 
