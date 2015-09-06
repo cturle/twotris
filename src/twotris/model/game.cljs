@@ -1,6 +1,7 @@
 (ns twotris.model.game
-  (:require ;[twotris.orto.engine :as oe]
-            [twotris.orto.world :as ow] ))
+  (:require-macros [orto.world :as ow])
+)
+
 
 (def +pieces+
   [[[0 0 0 0]
@@ -102,8 +103,12 @@
   (update-in GAME [:Y] inc) )
 
 ;;; ===== game commands auto-generated from specifications
+; here you ask (in ':Fn' part) for the 'gravity' definition from the 'gravity' Transition
+; the gravity Transition tells you (in ':World' part) that it is based on the 'gravity' Action.
+; the gravity Action tells you its Code (:Code part), which states are eligible (those which piece-in-game?)
+;
 
-(ow/defspec
+(ow/defcode
   {:World  {:valid?-Fn  valid-game?
             :Transition {:gravity         {:Action  :gravity}
                          :move-left       {:Action  :move-left}
@@ -125,21 +130,11 @@
                                            :always-valid?  true }
                          }
             }
-   :Fn  [{:name :gravity,        :spec [:Transition :gravity]}
-         {:name :move-left,      :spec [:Transition :move-left]}
-         {:name :move-right,     :spec [:Transition :move-right]}
-         {:name :rotate,         :spec [:Transition :rotate]}
-         {:name :drop-to-ground, :spec [:Transition :drop-to-ground]} ]})
-
-
-
-
-
-
-
-
-
-
+   :Fn  [{:name gravity,        :spec [:Transition :gravity]}
+         {:name move-left,      :spec [:Transition :move-left]}
+         {:name move-right,     :spec [:Transition :move-right]}
+         {:name rotate,         :spec [:Transition :rotate]}
+         {:name drop-to-ground, :spec [:Transition :drop-to-ground]} ]})
 
 
 

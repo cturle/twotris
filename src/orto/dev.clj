@@ -1,4 +1,4 @@
-(ns twotris.orto.dev)
+(ns orto.dev)
 
 
 ; (def-code 'toto '(+ 3 4))
