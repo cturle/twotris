@@ -6,7 +6,7 @@ This project is a double Tetris game written with ClojureScript/Reagent largely 
 
 Before you go on, you halt a moment to play [Twotris](http://cturle.github.io/twotris.html) online to see what it is about.
 
-Last online game update = version 1.2.0 (2015-08-13)
+Last online game update = version 1.3.1 (2015-08-22)
 
 It is written as a single page application to demonstrate how to use Reagent from ClojureScript.
 
@@ -79,6 +79,7 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
+- reagent 0.5.1-rc
 - try not to use "-watch" to handle Pure Data Reaction (not used in Views).
 - `u/r-Map*Index_r-Any`
 - +status+ => +status-name-map+
