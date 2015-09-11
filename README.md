@@ -79,7 +79,6 @@ Below, i list the differences from original code.
 
 Todos list in order of priority :
 
-- reagent 0.5.1-rc
 - try not to use "-watch" to handle Pure Data Reaction (not used in Views).
 - `u/r-Map*Index_r-Any`
 - +status+ => +status-name-map+
